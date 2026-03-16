@@ -365,18 +365,25 @@
         }
     }
 
-    // --- Drag & Select ---
+    // --- Drag & Select (Mobile Fixed) ---
     function makeDraggable(el) {
         let p1=0, p2=0, p3=0, p4=0;
+        let startX=0, startY=0;
+        let isDragging = false; 
         
         el.addEventListener('mousedown', updateInputsFromSelection);
         el.addEventListener('touchstart', updateInputsFromSelection, {passive: true});
 
         el.onmousedown = el.ontouchstart = function(e) {
+            if (e.type === "touchstart" && e.cancelable) {
+                e.preventDefault();
+            }
+
             if (e.touches && e.touches.length > 1) return;
             if (bgLocked && el.classList.contains('bg-layer')) return;
 
             const isMulti = e.ctrlKey || e.metaKey || e.shiftKey || multiSelectMode;
+            isDragging = false; 
             
             if (!isMulti) {
                 if (!selectedElements.includes(el)) {
@@ -386,27 +393,47 @@
             } else {
                 if (selectedElements.includes(el)) {
                     el.classList.remove('selected');
-                    selectedElements = selectedElements.filter(i => i !== el); return;
+                    selectedElements = selectedElements.filter(i => i !== el); 
+                    return; 
                 } else { selectedElements.push(el); }
             }
             selectedElements.forEach(i => i.classList.add('selected'));
             
             let ex = e.type === "touchstart" ? e.touches[0].clientX : e.clientX;
             let ey = e.type === "touchstart" ? e.touches[0].clientY : e.clientY;
-            p3 = ex; p4 = ey;
+            p3 = startX = ex; 
+            p4 = startY = ey;
 
             document.onmousemove = document.ontouchmove = function(ev) {
+                if (ev.type === "touchmove" && ev.cancelable) {
+                    ev.preventDefault(); 
+                }
+                
                 if (ev.touches && ev.touches.length > 1) return; 
                 let cx = ev.type === "touchmove" ? ev.touches[0].clientX : ev.clientX;
                 let cy = ev.type === "touchmove" ? ev.touches[0].clientY : ev.clientY;
-                p1 = (p3 - cx) / cardScale; p2 = (p4 - cy) / cardScale; p3 = cx; p4 = cy;
+                
+                if (!isDragging && Math.abs(cx - startX) < 3 && Math.abs(cy - startY) < 3) {
+                    return;
+                }
+                isDragging = true; 
+
+                p1 = (p3 - cx) / cardScale; 
+                p2 = (p4 - cy) / cardScale; 
+                p3 = cx; 
+                p4 = cy;
+                
                 selectedElements.forEach(item => {
-                    item.style.top = (item.offsetTop - p2) + "px"; item.style.left = (item.offsetLeft - p1) + "px";
+                    item.style.top = (item.offsetTop - p2) + "px"; 
+                    item.style.left = (item.offsetLeft - p1) + "px";
                 });
             };
+
             document.onmouseup = document.ontouchend = function() {
                 document.onmousemove = document.ontouchmove = null;
-                recordAction();
+                if (isDragging) {
+                    recordAction(); 
+                }
             };
         };
     }
