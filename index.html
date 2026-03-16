@@ -8,6 +8,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script&family=Lobster&family=Oswald&family=Pacifico&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
         :root { --primary: #0056b3; --bg: #f1f3f6; }
@@ -160,6 +161,12 @@
                     <option value="'Courier New', Courier, monospace">Courier</option>
                     <option value="'Georgia', serif">Georgia</option>
                     <option value="'Impact', sans-serif">Impact</option>
+                    <option value="'Roboto', sans-serif">Roboto</option>
+                    <option value="'Oswald', sans-serif">Oswald</option>
+                    <option value="'Lobster', cursive">Lobster</option>
+                    <option value="'Pacifico', cursive">Pacifico</option>
+                    <option value="'Dancing Script', cursive">Dancing Script</option>
+                    <option value="'Comic Sans MS', cursive, sans-serif">Comic Sans</option>
                 </select>
 
                 <select id="newTextSize" onchange="changeFontSizeCombo(this.value)" style="width: 45px; padding: 2px 4px; font-size: 11px; height: 28px;" title="Text Size">
@@ -197,17 +204,36 @@
             <div class="effect-item">
                 <label>Drop Shadow</label>
                 <div class="slider-group">
-                    <button class="btn-step" onclick="stepSlider('shadowSlider', -1, () => changeShadow(true))">-</button>
+                    <button class="btn-step" onclick="stepPercentSlider('shadowSlider', -2, () => changeShadow(true))">-</button>
                     <input type="range" id="shadowSlider" min="0" max="25" value="0" oninput="changeShadow(false)" onchange="changeShadow(true)">
-                    <button class="btn-step" onclick="stepSlider('shadowSlider', 1, () => changeShadow(true))">+</button>
+                    <button class="btn-step" onclick="stepPercentSlider('shadowSlider', 2, () => changeShadow(true))">+</button>
                 </div>
             </div>
             <div class="effect-item">
                 <label>Line Spacing</label>
                 <div class="slider-group">
-                    <button class="btn-step" onclick="stepSlider('spacingSlider', -1, () => adjustLineSpacing(true))">-</button>
+                    <button class="btn-step" onclick="stepPercentSlider('spacingSlider', -2, () => adjustLineSpacing(true))">-</button>
                     <input type="range" id="spacingSlider" min="-10" max="40" value="5" oninput="adjustLineSpacing(false)" onchange="adjustLineSpacing(true)">
-                    <button class="btn-step" onclick="stepSlider('spacingSlider', 1, () => adjustLineSpacing(true))">+</button>
+                    <button class="btn-step" onclick="stepPercentSlider('spacingSlider', 2, () => adjustLineSpacing(true))">+</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="effects-grid" style="grid-template-columns: repeat(2, 1fr); gap: 4px; margin-bottom: 6px;">
+            <div class="effect-item">
+                <label>Box Width</label>
+                <div class="slider-group">
+                    <button class="btn-step" onclick="stepPercentSlider('widthSlider', -2, () => resizeSelectedItem(true))">-</button>
+                    <input type="range" id="widthSlider" min="10" max="600" value="100" oninput="resizeSelectedItem(false)" onchange="resizeSelectedItem(true)">
+                    <button class="btn-step" onclick="stepPercentSlider('widthSlider', 2, () => resizeSelectedItem(true))">+</button>
+                </div>
+            </div>
+            <div class="effect-item">
+                <label>Box Height</label>
+                <div class="slider-group">
+                    <button class="btn-step" onclick="stepPercentSlider('heightSlider', -2, () => resizeSelectedItem(true))">-</button>
+                    <input type="range" id="heightSlider" min="10" max="600" value="100" oninput="resizeSelectedItem(false)" onchange="resizeSelectedItem(true)">
+                    <button class="btn-step" onclick="stepPercentSlider('heightSlider', 2, () => resizeSelectedItem(true))">+</button>
                 </div>
             </div>
         </div>
@@ -217,33 +243,33 @@
         <div class="effects-grid">
             <div class="effect-row-compact">
                 <input type="color" id="outlineColor" value="#ff0000" oninput="applyOutline(false)" onchange="applyOutline(true)" title="Outline Color">
-                <button class="btn-step" onclick="stepSlider('outlineSlider', -1, () => applyOutline(true))">-</button>
+                <button class="btn-step" onclick="stepPercentSlider('outlineSlider', -2, () => applyOutline(true))">-</button>
                 <input type="range" id="outlineSlider" min="0" max="15" value="0" oninput="applyOutline(false)" onchange="applyOutline(true)">
-                <button class="btn-step" onclick="stepSlider('outlineSlider', 1, () => applyOutline(true))">+</button>
+                <button class="btn-step" onclick="stepPercentSlider('outlineSlider', 2, () => applyOutline(true))">+</button>
                 <span class="mini-label">Outline</span>
             </div>
             
             <div class="effect-row-compact">
                 <input type="color" id="itemBorderColor" value="#000000" oninput="applyItemBorder(false)" onchange="applyItemBorder(true)" title="Border Color">
-                <button class="btn-step" onclick="stepSlider('itemBorderSlider', -1, () => applyItemBorder(true))">-</button>
+                <button class="btn-step" onclick="stepPercentSlider('itemBorderSlider', -2, () => applyItemBorder(true))">-</button>
                 <input type="range" id="itemBorderSlider" min="0" max="20" value="0" oninput="applyItemBorder(false)" onchange="applyItemBorder(true)">
-                <button class="btn-step" onclick="stepSlider('itemBorderSlider', 1, () => applyItemBorder(true))">+</button>
+                <button class="btn-step" onclick="stepPercentSlider('itemBorderSlider', 2, () => applyItemBorder(true))">+</button>
                 <span class="mini-label">Border</span>
             </div>
 
             <div class="effect-row-compact">
                 <input type="color" id="depthColor" value="#888888" oninput="apply3DDepth(false)" onchange="apply3DDepth(true)" title="3D Color">
-                <button class="btn-step" onclick="stepSlider('depthSlider', -1, () => apply3DDepth(true))">-</button>
+                <button class="btn-step" onclick="stepPercentSlider('depthSlider', -2, () => apply3DDepth(true))">-</button>
                 <input type="range" id="depthSlider" min="0" max="30" value="0" oninput="apply3DDepth(false)" onchange="apply3DDepth(true)">
-                <button class="btn-step" onclick="stepSlider('depthSlider', 1, () => apply3DDepth(true))">+</button>
+                <button class="btn-step" onclick="stepPercentSlider('depthSlider', 2, () => apply3DDepth(true))">+</button>
                 <span class="mini-label">3D Depth</span>
             </div>
 
             <div class="effect-row-compact">
                 <input type="color" id="cardBorderColor" value="#cccccc" oninput="applyCardBorder(false)" onchange="applyCardBorder(true)" title="Card Border Color">
-                <button class="btn-step" onclick="stepSlider('cardBorderSlider', -1, () => applyCardBorder(true))">-</button>
+                <button class="btn-step" onclick="stepPercentSlider('cardBorderSlider', -2, () => applyCardBorder(true))">-</button>
                 <input type="range" id="cardBorderSlider" min="0" max="25" value="1" oninput="applyCardBorder(false)" onchange="applyCardBorder(true)">
-                <button class="btn-step" onclick="stepSlider('cardBorderSlider', 1, () => applyCardBorder(true))">+</button>
+                <button class="btn-step" onclick="stepPercentSlider('cardBorderSlider', 2, () => applyCardBorder(true))">+</button>
                 <span class="mini-label">Card Bd</span>
             </div>
         </div>
@@ -260,10 +286,14 @@
             <button class="btn" onclick="document.getElementById('bgUpload').click()">🖼️ BG</button>
             <button class="btn" onclick="document.getElementById('logoUpload').click()">❇️ Logo</button>
         </div>
+        
         <div class="btn-row" style="margin-bottom: 4px; align-items: center; background: #f0f0f0; border-radius: 4px; padding: 2px;">
-            <span style="font-size:11px; font-weight:bold; color:#333; flex: 2; text-align: center;">Image/BG Size:</span>
-            <button class="btn btn-icon" style="flex: 1;" onclick="scaleSelectedImage(0.9)" title="Make Smaller">➖</button>
-            <button class="btn btn-icon" style="flex: 1;" onclick="scaleSelectedImage(1.1)" title="Make Larger">➕</button>
+            <span style="font-size:11px; font-weight:bold; color:#333; flex: 1; text-align: center;">Card BG:</span>
+            <input type="color" class="color-box" style="flex: 1; height: 24px; padding: 0; margin-right: 5px;" oninput="changeCardBgColor(this.value, false)" onchange="changeCardBgColor(this.value, true)" title="Card Background Color" value="#ffffff">
+            
+            <span style="font-size:11px; font-weight:bold; color:#333; flex: 1; text-align: center;">Size:</span>
+            <button class="btn btn-icon" style="flex: 1;" onclick="scaleSelectedImage(0.98)" title="Make Smaller">➖</button>
+            <button class="btn btn-icon" style="flex: 1;" onclick="scaleSelectedImage(1.02)" title="Make Larger">➕</button>
         </div>
         
         <input type="file" id="photoUpload" hidden accept="image/*" onchange="uploadImage(event, 'photo')">
@@ -282,7 +312,7 @@
 
     <div class="workspace" id="workspaceArea">
         <div id="idCardContainer" class="id-card">
-            </div>
+        </div>
     </div>
 </div>
 
@@ -353,8 +383,8 @@
     function recordAction() {
         const currentSelection = [...selectedElements];
         selectedElements.forEach(el => el.classList.remove('selected'));
-        const state = { html: idCard.innerHTML, bg: idCard.style.backgroundImage, width: idCard.style.width, height: idCard.style.height, border: idCard.style.border };
-        if (historyIndex >= 0 && history[historyIndex].html === state.html && history[historyIndex].border === state.border) {
+        const state = { html: idCard.innerHTML, bg: idCard.style.backgroundImage, bgColor: idCard.style.backgroundColor, width: idCard.style.width, height: idCard.style.height, border: idCard.style.border };
+        if (historyIndex >= 0 && history[historyIndex].html === state.html && history[historyIndex].border === state.border && history[historyIndex].bgColor === state.bgColor) {
             currentSelection.forEach(el => el.classList.add('selected')); return;
         }
         historyIndex++; history = history.slice(0, historyIndex); history.push(state);
@@ -365,7 +395,7 @@
     function handleRedo() { if (historyIndex < history.length - 1) { historyIndex++; applyState(history[historyIndex]); } }
 
     function applyState(state) {
-        idCard.innerHTML = state.html; idCard.style.backgroundImage = state.bg;
+        idCard.innerHTML = state.html; idCard.style.backgroundImage = state.bg; idCard.style.backgroundColor = state.bgColor;
         idCard.style.width = state.width; idCard.style.height = state.height; idCard.style.border = state.border;
         
         let res = parseFloat(document.getElementById('cardRes').value) || 96;
@@ -386,7 +416,7 @@
         }
     }
 
-    // --- Drag & Select (Mobile Fixed & Resize Compatible) ---
+    // --- Drag & Select ---
     function makeDraggable(el) {
         let p1=0, p2=0, p3=0, p4=0;
         let startX=0, startY=0;
@@ -466,25 +496,53 @@
     }
 
     function updateInputsFromSelection() {
-        if(selectedElements.length > 0 && selectedElements[0].classList.contains('text-item')) {
-            let currentSize = parseInt(window.getComputedStyle(selectedElements[0]).fontSize);
-            if(currentSize) {
-                let sizeCombo = document.getElementById('newTextSize');
-                let found = Array.from(sizeCombo.options).some(opt => opt.value == currentSize);
-                if(found) sizeCombo.value = currentSize;
+        if(selectedElements.length > 0) {
+            let el = selectedElements[0];
+            if(el.classList.contains('text-item')) {
+                let currentSize = parseInt(window.getComputedStyle(el).fontSize);
+                if(currentSize) {
+                    let sizeCombo = document.getElementById('newTextSize');
+                    let found = Array.from(sizeCombo.options).some(opt => opt.value == currentSize);
+                    if(found) sizeCombo.value = currentSize;
+                }
             }
+            let w = parseInt(window.getComputedStyle(el).width);
+            let h = parseInt(window.getComputedStyle(el).height);
+            if(w && document.getElementById('widthSlider')) document.getElementById('widthSlider').value = w;
+            if(h && document.getElementById('heightSlider')) document.getElementById('heightSlider').value = h;
         }
     }
 
-    function stepSlider(id, step, callback) {
-        const slider = document.getElementById(id); if(!slider) return;
-        let val = parseInt(slider.value) + step;
-        if (val < parseInt(slider.min)) val = parseInt(slider.min);
-        if (val > parseInt(slider.max)) val = parseInt(slider.max);
-        slider.value = val; callback(); 
+    // NEW LOGIC: Calculate exactly 2% of the slider's length
+    function stepPercentSlider(id, percent, callback) {
+        const slider = document.getElementById(id); 
+        if(!slider) return;
+        
+        let currentVal = parseFloat(slider.value);
+        let maxVal = parseFloat(slider.max) || 100;
+        let minVal = parseFloat(slider.min) || 0;
+        
+        // Calculate the total range (length) of the combobox
+        let range = maxVal - minVal;
+        
+        // Calculate the step amount (2% of the total range)
+        let stepAmount = range * (percent / 100);
+        
+        // Ensure it always moves by at least 1 pixel (so it doesn't get stuck on small numbers)
+        if (Math.abs(stepAmount) < 1) {
+            stepAmount = percent > 0 ? 1 : -1;
+        }
+        
+        let val = Math.round(currentVal + stepAmount);
+        
+        if (val < minVal) val = minVal;
+        if (val > maxVal) val = maxVal;
+        
+        slider.value = val; 
+        callback(); 
     }
 
-    // --- Function for Scaling Image/BG ---
+    // Scale Image by percentage (Updated to exactly +/- 2% as well)
     function scaleSelectedImage(scaleFactor) {
         let targets = selectedElements.length > 0 ? selectedElements : document.querySelectorAll('.bg-layer');
         if(targets.length === 0) return;
@@ -503,6 +561,23 @@
             }
         });
         recordAction();
+    }
+
+    function resizeSelectedItem(save = false) {
+        if(selectedElements.length === 0) return;
+        const w = document.getElementById('widthSlider').value;
+        const h = document.getElementById('heightSlider').value;
+        
+        selectedElements.forEach(el => {
+            el.style.width = w + 'px';
+            el.style.height = h + 'px';
+        });
+        if(save) recordAction();
+    }
+
+    function changeCardBgColor(c, save = false) {
+        idCard.style.backgroundColor = c;
+        if(save) recordAction();
     }
 
     function applyOutline(save = false) {
@@ -565,7 +640,6 @@
         idCard.appendChild(d); makeDraggable(d); recordAction(); document.getElementById('customTextInput').value = '';
     }
 
-    // --- NEW FUNCTION: ADD 2D/3D SHAPES ---
     function addShape() {
         const shapeType = document.getElementById('shapeSelect').value;
         const color = document.getElementById('shapeColor').value;
@@ -676,7 +750,6 @@
         r.readAsDataURL(e.target.files[0]);
     }
 
-    // UPDATED: applyColor Function (To change color of Text or Shapes)
     function applyColor(c, type, save=true) { 
         selectedElements.forEach(e => { 
             if(type==='text') {
@@ -726,11 +799,11 @@
         }, 100);
     }
     async function saveProjectZip() {
-        const zip = new JSZip(); zip.file("project.json", JSON.stringify({ html: idCard.innerHTML, bg: idCard.style.backgroundImage, width: idCard.style.width, height: idCard.style.height, border: idCard.style.border }));
+        const zip = new JSZip(); zip.file("project.json", JSON.stringify({ html: idCard.innerHTML, bg: idCard.style.backgroundImage, bgColor: idCard.style.backgroundColor, width: idCard.style.width, height: idCard.style.height, border: idCard.style.border }));
         zip.generateAsync({type:"blob"}).then(c => { const l = document.createElement('a'); l.href = URL.createObjectURL(c); l.download = "ID_Card_Project.zip"; l.click(); });
     }
     function loadProject(e) { const file = e.target.files[0]; if (!file) return; JSZip.loadAsync(file).then(zip => zip.file("project.json").async("string").then(data => { applyState(JSON.parse(data)); recordAction(); })); }
-    function clearAllElements() { if (confirm("Clear All?")) { document.querySelectorAll('.draggable').forEach(el => el.remove()); idCard.style.backgroundImage = 'none'; recordAction(); } }
+    function clearAllElements() { if (confirm("Clear All?")) { document.querySelectorAll('.draggable').forEach(el => el.remove()); idCard.style.backgroundImage = 'none'; idCard.style.backgroundColor = '#ffffff'; recordAction(); } }
     function toggleRounding() { selectedElements.forEach(el => { const img = el.querySelector('img'); if(img) img.style.borderRadius = img.style.borderRadius === '50%' ? '5px' : '50%'; }); recordAction(); }
     function generateAutoQRCode() {
         let t = []; document.querySelectorAll('.text-item').forEach(e => t.push(e.innerText));
@@ -750,7 +823,6 @@
         lucide.createIcons();
     }
     
-    // Updated resize function for Inches to Pixels
     function resizeCard() { 
         let wInches = parseFloat(document.getElementById('cardWidth').value) || 2.7;
         let hInches = parseFloat(document.getElementById('cardHeight').value) || 4.7;
