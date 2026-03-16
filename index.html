@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pa">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kamboj SoftWares ID Maker Pro (Zoom Added)</title>
+    <title>Kamboj SoftWares ID Maker Pro (Live Color Picker)</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -24,11 +24,13 @@
         .form-group { margin-bottom: 5px; }
         .form-group label { display: block; font-size: 11px; font-weight: bold; color: #555; margin-bottom: 2px; }
         input[type="text"], input[type="number"], select { width: 100%; padding: 4px 6px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px; height: 28px; box-sizing: border-box; }
+        input[type="color"].color-box { padding: 0; width: 100%; height: 28px; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; }
         
         .btn-row { display: flex; gap: 4px; margin-top: 4px; flex-wrap: wrap; }
         .btn { flex: 1; padding: 4px; background: var(--primary); color: white; border: none; border-radius: 4px; font-weight: bold; font-size: 11px; cursor: pointer; height: 28px; display: flex; align-items: center; justify-content: center; }
         .btn-danger { background: #dc3545; }
         .btn-warning { background: #ffc107; color: #000; }
+        .btn-success { background: #28a745; color: white; }
         .btn-icon { background: #f0f0f0; color: #333; flex: 0 0 32px; border: 1px solid #ddd; }
 
         /* COMPACT SLIDERS */
@@ -39,6 +41,10 @@
         }
         .effect-item { display: flex; flex-direction: column; gap: 2px; align-items: center; margin-bottom: 2px; }
         .effect-item label { margin: 0; font-size: 10px; color: #444; font-weight: bold; text-align: center; }
+        
+        .effect-row-compact { display: flex; align-items: center; gap: 4px; width: 100%; justify-content: flex-start; padding: 2px 0; }
+        .mini-label { font-size: 9px; font-weight: bold; color: #333; white-space: nowrap; flex: 0 0 50px; text-align: left; line-height: 1; }
+
         .slider-group { display: flex; align-items: center; gap: 3px; width: 100%; justify-content: center; }
         .btn-step { background: #e0e0e0; border: 1px solid #ccc; border-radius: 3px; width: 20px; height: 20px; font-weight: bold; font-size: 14px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #333; padding: 0; line-height: 1; }
         input[type="range"] { flex: 1; height: 10px; accent-color: var(--primary); cursor: pointer; margin: 0; }
@@ -57,8 +63,7 @@
         /* Zoom Controls */
         .zoom-controls { position: fixed; bottom: 30px; left: 15px; display: flex; flex-direction: column; gap: 10px; z-index: 1500; }
         .zoom-controls button { width: 40px; height: 40px; border-radius: 50%; background: var(--primary); color: white; font-size: 24px; font-weight: bold; border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        .zoom-controls button:active { background: #004494; transform: scale(0.95); }
-
+        
         /* Watermark */
         .watermark { position: fixed; bottom: 5px; right: 10px; font-size: 12px; color: blue; font-weight: bold; z-index: 2000; pointer-events: none; }
     </style>
@@ -67,14 +72,14 @@
 
 <div class="main-container">
     <div class="mobile-toolbar">
-        <div class="tool-icon" onclick="togglePanel('p-text', this)" title="Text"><i data-lucide="type"></i></div>
-        <div class="tool-icon" onclick="togglePanel('p-media', this)" title="Media"><i data-lucide="image"></i></div>
-        <div class="tool-icon" onclick="togglePanel('p-design', this)" title="Design"><i data-lucide="palette"></i></div>
-        <div class="tool-icon" onclick="togglePanel('p-effects', this)" title="Effects (Sliders)"><i data-lucide="wand-2"></i></div>
-        <div class="tool-icon" onclick="togglePanel('p-layers', this)" title="Layers"><i data-lucide="layers"></i></div>
+        <div class="tool-icon" onclick="togglePanel('p-layers', this)" title="Layers (1)"><i data-lucide="layers"></i></div>
+        <div class="tool-icon" onclick="togglePanel('p-text', this)" title="Text (2)"><i data-lucide="type"></i></div>
+        <div class="tool-icon" onclick="togglePanel('p-design', this)" title="Design (3)"><i data-lucide="palette"></i></div>
+        <div class="tool-icon" onclick="togglePanel('p-effects', this)" title="Effects (4)"><i data-lucide="wand-2"></i></div>
+        <div class="tool-icon" onclick="togglePanel('p-media', this)" title="Media (5)"><i data-lucide="image"></i></div>
         <div class="tool-icon" onclick="handleUndo()" title="Undo"><i data-lucide="undo-2"></i></div>
         <div class="tool-icon" onclick="handleRedo()" title="Redo"><i data-lucide="redo-2"></i></div>
-        <div class="tool-icon" onclick="togglePanel('p-project', this)" title="Project"><i data-lucide="save"></i></div>
+        <div class="tool-icon" onclick="togglePanel('p-project', this)" title="Project (6)"><i data-lucide="save"></i></div>
     </div>
 
     <div class="zoom-controls">
@@ -82,31 +87,66 @@
         <button onclick="zoomCard(-0.1)">-</button>
     </div>
 
-    <div id="p-text" class="context-panel">
-        <div class="form-group"><label>Header Text</label><input type="text" id="headerInput" value="Raj Kamboj 9465428299" onkeyup="updateHeader(this.value)" onblur="recordAction()"></div>
+    <div id="p-layers" class="context-panel">
         <div class="btn-row">
-            <input type="text" id="customTextInput" placeholder="ਟੈਕਸਟ ਲਿਖੋ..." style="flex:2;">
-            <button class="btn" style="flex:1;" onclick="addCustomText()">Add Text</button>
+            <button class="btn" onclick="moveLayer('front')">Front</button>
+            <button class="btn" onclick="moveLayer('back')">Back</button>
+            <button class="btn btn-warning" id="lockBtn" onclick="toggleLock()">🔓 Lock BG</button>
         </div>
-        <div class="btn-row">
-            <button class="btn" onclick="editSelectedText()">✏️ Edit</button>
-            <button class="btn btn-warning" onclick="selectAll()">Select All</button>
-            <button class="btn btn-danger" onclick="deleteSelected()">🗑️ Del</button>
+        <div style="display:flex; gap:5px; margin-top:5px; align-items:center;">
+            <label style="margin:0; font-size:10px; white-space:nowrap;">Width:</label>
+            <input type="number" id="cardWidth" value="260" onchange="resizeCard()" title="Card Width" style="flex:1;">
+            <label style="margin:0; font-size:10px; white-space:nowrap;">Height:</label>
+            <input type="number" id="cardHeight" value="450" onchange="resizeCard()" title="Card Height" style="flex:1;">
         </div>
     </div>
 
-    <div id="p-media" class="context-panel">
-        <div class="btn-row">
-            <button class="btn" onclick="document.getElementById('photoUpload').click()">📷 Photo</button>
-            <button class="btn" onclick="document.getElementById('bgUpload').click()">🖼️ BG</button>
-            <button class="btn" onclick="document.getElementById('logoUpload').click()">❇️ Logo</button>
+    <div id="p-text" class="context-panel">
+        <div class="form-group">
+            <label>Header Customization (ਟੈਕਸਟ, ਸਾਈਜ਼, ਰੰਗ)</label>
+            <div style="display:flex; gap:4px; margin-bottom: 6px;">
+                <input type="text" id="headerInput" value="Raj Kamboj 9465428299" onkeyup="updateHeader(this.value)" onblur="recordAction()" style="flex:3;">
+                <input type="number" id="headerSizeInput" value="14" onchange="updateHeaderSize(this.value)" style="flex:1;" title="Header Font Size">
+                <input type="color" class="color-box" id="headerBgInput" value="#0056b3" oninput="updateHeaderBg(this.value, false)" onchange="updateHeaderBg(this.value, true)" style="flex:1;" title="Header BG Color">
+            </div>
         </div>
-        <input type="file" id="photoUpload" hidden accept="image/*" onchange="uploadImage(event, 'photo')">
-        <input type="file" id="bgUpload" hidden accept="image/*" onchange="uploadImage(event, 'bg')">
-        <input type="file" id="logoUpload" hidden accept="image/*" onchange="uploadImage(event, 'logo')">
+        
+        <div class="form-group">
+            <label>Add / Select Text</label>
+            <div style="display:flex; gap:4px; margin-bottom: 4px; align-items: center;">
+                <input type="text" id="customTextInput" placeholder="ਟੈਕਸਟ ਲਿਖੋ..." style="flex:1; min-width: 0;">
+                
+                <select id="newTextSize" onchange="changeFontSizeCombo(this.value)" style="width: 50px; padding: 2px 4px; font-size: 12px; height: 28px;" title="Text Size">
+                    <option value="10">10</option>
+                    <option value="12">12</option>
+                    <option value="14" selected>14</option>
+                    <option value="16">16</option>
+                    <option value="18">18</option>
+                    <option value="20">20</option>
+                    <option value="24">24</option>
+                    <option value="28">28</option>
+                    <option value="32">32</option>
+                    <option value="36">36</option>
+                    <option value="40">40</option>
+                    <option value="50">50</option>
+                    <option value="60">60</option>
+                </select>
+
+                <button class="btn" style="flex:0 0 35px; padding: 0;" onclick="addCustomText()" title="Add Text">
+                    <i data-lucide="plus" style="width:16px;"></i>
+                </button>
+                
+                <button class="btn btn-warning" id="multiSelectToggleBtn" style="flex:0 0 35px; padding: 0;" onclick="toggleMultiSelectMode()" title="Select/Unselect Multiple">
+                    <i data-lucide="check-square" style="width:16px;"></i>
+                </button>
+            </div>
+        </div>
+        
         <div class="btn-row">
-            <button class="btn btn-warning" onclick="toggleRounding()">⭕ Round Image</button>
-            <button class="btn btn-success" onclick="generateAutoQRCode()">🔳 Auto QR</button>
+            <button class="btn" onclick="editSelectedText()">✏️ Edit</button>
+            <button class="btn" onclick="doCopy()">📄 Copy</button>
+            <button class="btn" onclick="doPaste()">📋 Paste</button>
+            <button class="btn btn-danger" onclick="deleteSelected()">🗑️ Del</button>
         </div>
     </div>
 
@@ -123,14 +163,6 @@
         </div>
         
         <div class="effects-grid" style="grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); margin-bottom: 6px;">
-            <div class="effect-item">
-                <label>Font Size</label>
-                <div class="slider-group">
-                    <button class="btn-step" onclick="stepSlider('fontSizeSlider', -1, () => changeFontSize(true))">-</button>
-                    <input type="range" id="fontSizeSlider" min="8" max="80" value="14" oninput="changeFontSize(false)" onchange="changeFontSize(true)">
-                    <button class="btn-step" onclick="stepSlider('fontSizeSlider', 1, () => changeFontSize(true))">+</button>
-                </div>
-            </div>
             <div class="effect-item">
                 <label>Drop Shadow</label>
                 <div class="slider-group">
@@ -149,71 +181,66 @@
             </div>
         </div>
 
-        <div class="btn-row">
+        <div class="btn-row" style="flex-wrap: nowrap; overflow-x: auto; padding-bottom: 2px;">
             <button class="btn btn-icon" onclick="applyFormat('bold')" title="Bold"><i data-lucide="bold" style="width:14px;"></i></button>
             <button class="btn btn-icon" onclick="applyFormat('italic')" title="Italic"><i data-lucide="italic" style="width:14px;"></i></button>
             <button class="btn btn-icon" onclick="positionElement('left')" title="Align Left"><i data-lucide="align-left" style="width:14px;"></i></button>
             <button class="btn btn-icon" onclick="positionElement('center')" title="Align Center"><i data-lucide="align-center" style="width:14px;"></i></button>
             <button class="btn btn-icon" onclick="positionElement('right')" title="Align Right"><i data-lucide="align-right" style="width:14px;"></i></button>
-        </div>
-        <div class="btn-row">
-            <button class="btn" onclick="doCopy()">📄 Copy</button>
-            <button class="btn" onclick="doPaste()">📋 Paste</button>
-            <input type="color" style="height:28px; flex:1;" onchange="applyColor(this.value, 'text')" title="Text Color">
-            <input type="color" style="height:28px; flex:1;" onchange="applyColor(this.value, 'bg')" title="Item BG Color">
+            
+            <input type="color" style="height:28px; flex: 0 0 35px; width: 35px;" class="color-box" oninput="applyColor(this.value, 'text', false)" onchange="applyColor(this.value, 'text', true)" title="Text Color">
+            <input type="color" style="height:28px; flex: 0 0 35px; width: 35px;" class="color-box" oninput="applyColor(this.value, 'bg', false)" onchange="applyColor(this.value, 'bg', true)" title="Item BG Color">
         </div>
     </div>
 
-    <div id="p-effects" class="context-panel">
+    <div id="p-effects" class="context-panel" style="padding: 6px 10px;">
         <div class="effects-grid">
-            <div class="effect-item">
-                <label>Outline / Stroke</label>
-                <div class="slider-group">
-                    <input type="color" id="outlineColor" value="#ff0000" onchange="applyOutline(true)">
-                    <button class="btn-step" onclick="stepSlider('outlineSlider', -1, () => applyOutline(true))">-</button>
-                    <input type="range" id="outlineSlider" min="0" max="15" value="0" oninput="applyOutline(false)" onchange="applyOutline(true)">
-                    <button class="btn-step" onclick="stepSlider('outlineSlider', 1, () => applyOutline(true))">+</button>
-                </div>
+            <div class="effect-row-compact">
+                <input type="color" id="outlineColor" value="#ff0000" oninput="applyOutline(false)" onchange="applyOutline(true)" title="Outline Color">
+                <button class="btn-step" onclick="stepSlider('outlineSlider', -1, () => applyOutline(true))">-</button>
+                <input type="range" id="outlineSlider" min="0" max="15" value="0" oninput="applyOutline(false)" onchange="applyOutline(true)">
+                <button class="btn-step" onclick="stepSlider('outlineSlider', 1, () => applyOutline(true))">+</button>
+                <span class="mini-label">Outline</span>
             </div>
-            <div class="effect-item">
-                <label>Item Border</label>
-                <div class="slider-group">
-                    <input type="color" id="itemBorderColor" value="#000000" onchange="applyItemBorder(true)">
-                    <button class="btn-step" onclick="stepSlider('itemBorderSlider', -1, () => applyItemBorder(true))">-</button>
-                    <input type="range" id="itemBorderSlider" min="0" max="20" value="0" oninput="applyItemBorder(false)" onchange="applyItemBorder(true)">
-                    <button class="btn-step" onclick="stepSlider('itemBorderSlider', 1, () => applyItemBorder(true))">+</button>
-                </div>
+            
+            <div class="effect-row-compact">
+                <input type="color" id="itemBorderColor" value="#000000" oninput="applyItemBorder(false)" onchange="applyItemBorder(true)" title="Border Color">
+                <button class="btn-step" onclick="stepSlider('itemBorderSlider', -1, () => applyItemBorder(true))">-</button>
+                <input type="range" id="itemBorderSlider" min="0" max="20" value="0" oninput="applyItemBorder(false)" onchange="applyItemBorder(true)">
+                <button class="btn-step" onclick="stepSlider('itemBorderSlider', 1, () => applyItemBorder(true))">+</button>
+                <span class="mini-label">Border</span>
             </div>
-            <div class="effect-item">
-                <label>3D Depth</label>
-                <div class="slider-group">
-                    <input type="color" id="depthColor" value="#888888" onchange="apply3DDepth(true)">
-                    <button class="btn-step" onclick="stepSlider('depthSlider', -1, () => apply3DDepth(true))">-</button>
-                    <input type="range" id="depthSlider" min="0" max="30" value="0" oninput="apply3DDepth(false)" onchange="apply3DDepth(true)">
-                    <button class="btn-step" onclick="stepSlider('depthSlider', 1, () => apply3DDepth(true))">+</button>
-                </div>
+
+            <div class="effect-row-compact">
+                <input type="color" id="depthColor" value="#888888" oninput="apply3DDepth(false)" onchange="apply3DDepth(true)" title="3D Color">
+                <button class="btn-step" onclick="stepSlider('depthSlider', -1, () => apply3DDepth(true))">-</button>
+                <input type="range" id="depthSlider" min="0" max="30" value="0" oninput="apply3DDepth(false)" onchange="apply3DDepth(true)">
+                <button class="btn-step" onclick="stepSlider('depthSlider', 1, () => apply3DDepth(true))">+</button>
+                <span class="mini-label">3D Depth</span>
             </div>
-            <div class="effect-item">
-                <label>Card Outer Border</label>
-                <div class="slider-group">
-                    <input type="color" id="cardBorderColor" value="#cccccc" onchange="applyCardBorder(true)">
-                    <button class="btn-step" onclick="stepSlider('cardBorderSlider', -1, () => applyCardBorder(true))">-</button>
-                    <input type="range" id="cardBorderSlider" min="0" max="25" value="1" oninput="applyCardBorder(false)" onchange="applyCardBorder(true)">
-                    <button class="btn-step" onclick="stepSlider('cardBorderSlider', 1, () => applyCardBorder(true))">+</button>
-                </div>
+
+            <div class="effect-row-compact">
+                <input type="color" id="cardBorderColor" value="#cccccc" oninput="applyCardBorder(false)" onchange="applyCardBorder(true)" title="Card Border Color">
+                <button class="btn-step" onclick="stepSlider('cardBorderSlider', -1, () => applyCardBorder(true))">-</button>
+                <input type="range" id="cardBorderSlider" min="0" max="25" value="1" oninput="applyCardBorder(false)" onchange="applyCardBorder(true)">
+                <button class="btn-step" onclick="stepSlider('cardBorderSlider', 1, () => applyCardBorder(true))">+</button>
+                <span class="mini-label">Card Bd</span>
             </div>
         </div>
     </div>
 
-    <div id="p-layers" class="context-panel">
+    <div id="p-media" class="context-panel">
         <div class="btn-row">
-            <button class="btn" onclick="moveLayer('front')">Front</button>
-            <button class="btn" onclick="moveLayer('back')">Back</button>
-            <button class="btn btn-warning" id="lockBtn" onclick="toggleLock()">🔓 Lock BG</button>
+            <button class="btn" onclick="document.getElementById('photoUpload').click()">📷 Photo</button>
+            <button class="btn" onclick="document.getElementById('bgUpload').click()">🖼️ BG</button>
+            <button class="btn" onclick="document.getElementById('logoUpload').click()">❇️ Logo</button>
         </div>
+        <input type="file" id="photoUpload" hidden accept="image/*" onchange="uploadImage(event, 'photo')">
+        <input type="file" id="bgUpload" hidden accept="image/*" onchange="uploadImage(event, 'bg')">
+        <input type="file" id="logoUpload" hidden accept="image/*" onchange="uploadImage(event, 'logo')">
         <div class="btn-row">
-            <input type="number" id="cardWidth" value="260" onchange="resizeCard()">
-            <input type="number" id="cardHeight" value="450" onchange="resizeCard()">
+            <button class="btn btn-warning" onclick="toggleRounding()">⭕ Round Image</button>
+            <button class="btn btn-success" onclick="generateAutoQRCode()">🔳 Auto QR</button>
         </div>
     </div>
 
@@ -248,11 +275,34 @@
     let historyIndex = -1;
     let topZ = 600;
     let bgLocked = false;
+    let multiSelectMode = false;
     
-    // Zoom Variables
     let cardScale = 1.0;
     let initialPinchDistance = null;
     let initialScale = 1.0;
+
+    // --- Unselect on Outside Click ---
+    document.addEventListener('mousedown', function(e) {
+        if (!e.target.closest('.draggable') && !e.target.closest('.mobile-toolbar') && !e.target.closest('.context-panel') && !e.target.closest('.zoom-controls')) {
+            document.querySelectorAll('.draggable').forEach(d => d.classList.remove('selected'));
+            selectedElements = [];
+        }
+    });
+
+    document.addEventListener('touchstart', function(e) {
+        if (!e.target.closest('.draggable') && !e.target.closest('.mobile-toolbar') && !e.target.closest('.context-panel') && !e.target.closest('.zoom-controls')) {
+            document.querySelectorAll('.draggable').forEach(d => d.classList.remove('selected'));
+            selectedElements = [];
+        }
+    }, {passive: true});
+
+    // --- Header Customization ---
+    function updateHeader(v) { document.getElementById('cardHeader').innerText = v; }
+    function updateHeaderSize(v) { document.getElementById('cardHeader').style.fontSize = v + 'px'; recordAction(); }
+    function updateHeaderBg(v, save=true) { 
+        document.getElementById('cardHeader').style.backgroundColor = v; 
+        if(save) recordAction(); 
+    }
 
     // --- Zoom Logic ---
     function zoomCard(step) {
@@ -262,24 +312,17 @@
         idCard.style.transform = `scale(${cardScale})`;
     }
 
-    // Touch Pinch-to-Zoom
     workspaceArea.addEventListener('touchstart', function(e) {
         if (e.touches.length === 2) {
-            initialPinchDistance = Math.hypot(
-                e.touches[0].clientX - e.touches[1].clientX,
-                e.touches[0].clientY - e.touches[1].clientY
-            );
+            initialPinchDistance = Math.hypot( e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY );
             initialScale = cardScale;
         }
     }, {passive: false});
 
     workspaceArea.addEventListener('touchmove', function(e) {
         if (e.touches.length === 2) {
-            e.preventDefault(); // Prevent page scroll while zooming
-            const currentDistance = Math.hypot(
-                e.touches[0].clientX - e.touches[1].clientX,
-                e.touches[0].clientY - e.touches[1].clientY
-            );
+            e.preventDefault(); 
+            const currentDistance = Math.hypot( e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY );
             if (initialPinchDistance) {
                 const scaleChange = currentDistance / initialPinchDistance;
                 cardScale = Math.min(Math.max(0.4, initialScale * scaleChange), 3.0);
@@ -288,9 +331,7 @@
         }
     }, {passive: false});
 
-    workspaceArea.addEventListener('touchend', function(e) {
-        if (e.touches.length < 2) initialPinchDistance = null;
-    });
+    workspaceArea.addEventListener('touchend', function(e) { if (e.touches.length < 2) initialPinchDistance = null; });
 
     // --- History Logic ---
     function recordAction() {
@@ -313,7 +354,18 @@
         selectedElements = []; document.querySelectorAll('.draggable').forEach(makeDraggable);
     }
 
-    // --- Multi-Select & Drag (Fixed for Zoom) ---
+    // --- Toggle Multi-Select Mode ---
+    function toggleMultiSelectMode() {
+        multiSelectMode = !multiSelectMode;
+        const btn = document.getElementById('multiSelectToggleBtn');
+        if (multiSelectMode) {
+            btn.classList.replace('btn-warning', 'btn-success');
+        } else {
+            btn.classList.replace('btn-success', 'btn-warning');
+        }
+    }
+
+    // --- Drag & Select ---
     function makeDraggable(el) {
         let p1=0, p2=0, p3=0, p4=0;
         
@@ -321,10 +373,11 @@
         el.addEventListener('touchstart', updateInputsFromSelection, {passive: true});
 
         el.onmousedown = el.ontouchstart = function(e) {
-            if (e.touches && e.touches.length > 1) return; // Allow pinch zoom to work without dragging elements
+            if (e.touches && e.touches.length > 1) return;
             if (bgLocked && el.classList.contains('bg-layer')) return;
 
-            const isMulti = e.ctrlKey || e.metaKey || e.shiftKey;
+            const isMulti = e.ctrlKey || e.metaKey || e.shiftKey || multiSelectMode;
+            
             if (!isMulti) {
                 if (!selectedElements.includes(el)) {
                     document.querySelectorAll('.draggable').forEach(d => d.classList.remove('selected'));
@@ -343,18 +396,12 @@
             p3 = ex; p4 = ey;
 
             document.onmousemove = document.ontouchmove = function(ev) {
-                if (ev.touches && ev.touches.length > 1) return; // Prevent drag during pinch zoom
+                if (ev.touches && ev.touches.length > 1) return; 
                 let cx = ev.type === "touchmove" ? ev.touches[0].clientX : ev.clientX;
                 let cy = ev.type === "touchmove" ? ev.touches[0].clientY : ev.clientY;
-                
-                // IMPORTANT: Divide by scale to maintain correct drag speed when zoomed in/out
-                p1 = (p3 - cx) / cardScale; 
-                p2 = (p4 - cy) / cardScale; 
-                p3 = cx; p4 = cy;
-                
+                p1 = (p3 - cx) / cardScale; p2 = (p4 - cy) / cardScale; p3 = cx; p4 = cy;
                 selectedElements.forEach(item => {
-                    item.style.top = (item.offsetTop - p2) + "px";
-                    item.style.left = (item.offsetLeft - p1) + "px";
+                    item.style.top = (item.offsetTop - p2) + "px"; item.style.left = (item.offsetLeft - p1) + "px";
                 });
             };
             document.onmouseup = document.ontouchend = function() {
@@ -367,14 +414,16 @@
     function updateInputsFromSelection() {
         if(selectedElements.length > 0 && selectedElements[0].classList.contains('text-item')) {
             let currentSize = parseInt(window.getComputedStyle(selectedElements[0]).fontSize);
-            if(currentSize) document.getElementById('fontSizeSlider').value = currentSize;
+            if(currentSize) {
+                let sizeCombo = document.getElementById('newTextSize');
+                let found = Array.from(sizeCombo.options).some(opt => opt.value == currentSize);
+                if(found) sizeCombo.value = currentSize;
+            }
         }
     }
 
-    // --- Slider Logic ---
     function stepSlider(id, step, callback) {
-        const slider = document.getElementById(id);
-        if(!slider) return;
+        const slider = document.getElementById(id); if(!slider) return;
         let val = parseInt(slider.value) + step;
         if (val < parseInt(slider.min)) val = parseInt(slider.min);
         if (val > parseInt(slider.max)) val = parseInt(slider.max);
@@ -414,10 +463,12 @@
         for (let i = 1; i < sorted.length; i++) { top += sorted[i-1].offsetHeight + parseInt(gap); sorted[i].style.top = top + "px"; }
         if(save) recordAction();
     }
-    function changeFontSize(save = false) {
-        const size = document.getElementById('fontSizeSlider').value;
-        selectedElements.forEach(el => { if (el.classList.contains('text-item')) el.style.fontSize = size + 'px'; }); if(save) recordAction();
+    
+    function changeFontSizeCombo(size) {
+        selectedElements.forEach(el => { if (el.classList.contains('text-item')) el.style.fontSize = size + 'px'; }); 
+        if(selectedElements.length > 0) recordAction();
     }
+
     function positionElement(alignType) {
         if (selectedElements.length === 0) return;
         const cardWidth = idCard.offsetWidth;
@@ -429,11 +480,13 @@
     }
     function changeFontFamily(font) { selectedElements.forEach(el => el.style.fontFamily = font); recordAction(); }
     
-    // --- Text/Media Actions ---
     function addCustomText() {
         const v = document.getElementById('customTextInput').value; if(!v) return;
+        const size = document.getElementById('newTextSize').value || 14;
         const d = document.createElement('div'); d.className='draggable text-item'; d.innerText=v;
-        d.style.top='150px'; d.style.left='10px'; d.style.fontFamily = document.getElementById('fontFamilySelect').value;
+        d.style.top='150px'; d.style.left='10px'; 
+        d.style.fontFamily = document.getElementById('fontFamilySelect').value;
+        d.style.fontSize = size + 'px';
         idCard.appendChild(d); makeDraggable(d); recordAction(); document.getElementById('customTextInput').value = '';
     }
     function editSelectedText() {
@@ -442,9 +495,8 @@
         }
     }
     function togglePanel(id, btn) { document.querySelectorAll('.context-panel').forEach(p => p.style.display = (p.id === id && p.style.display !== 'block') ? 'block' : 'none'); }
-    function selectAll() { selectedElements = Array.from(document.querySelectorAll('.draggable')); selectedElements.forEach(el => el.classList.add('selected')); }
+    
     function deleteSelected() { selectedElements.forEach(el => el.remove()); selectedElements = []; recordAction(); }
-    function updateHeader(v) { document.getElementById('cardHeader').innerText = v; }
     
     function uploadImage(e, type) {
         const r = new FileReader(); r.onload = function(ev) {
@@ -456,8 +508,13 @@
         }; r.readAsDataURL(e.target.files[0]);
     }
 
-    function applyColor(c, type) { selectedElements.forEach(e => { if(type==='text') e.style.color = c; else e.style.backgroundColor = c; }); recordAction(); }
+    function applyColor(c, type, save=true) { 
+        selectedElements.forEach(e => { if(type==='text') e.style.color = c; else e.style.backgroundColor = c; }); 
+        if(save) recordAction(); 
+    }
+
     function applyFormat(t) { selectedElements.forEach(e => { if(t==='bold') e.style.fontWeight = e.style.fontWeight==='bold'?'normal':'bold'; if(t==='italic') e.style.fontStyle = e.style.fontStyle==='italic'?'normal':'italic'; }); recordAction(); }
+    
     function doCopy() { if(selectedElements.length > 0) clipboard = selectedElements.map(el => { let c = el.cloneNode(true); c.classList.remove('selected'); return c; }); }
     function doPaste() {
         if(clipboard.length > 0) {
@@ -468,12 +525,11 @@
     
     function downloadPNG() {
         selectedElements.forEach(el => el.classList.remove('selected'));
-        // Temporarily reset scale for clear snapshot
         idCard.style.transform = 'scale(1)';
         setTimeout(() => {
             html2canvas(idCard, { scale: 3 }).then(canvas => {
                 const l = document.createElement('a'); l.download = 'ID_Card.png'; l.href = canvas.toDataURL(); l.click();
-                idCard.style.transform = `scale(${cardScale})`; // Restore scale
+                idCard.style.transform = `scale(${cardScale})`;
             });
         }, 100);
     }
