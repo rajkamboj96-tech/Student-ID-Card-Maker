@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kamboj SoftWares ID Maker Pro (Multi-Select Fixed)</title>
+    <title>Kamboj SoftWares ID Maker Pro (Live Color Picker)</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -365,7 +365,7 @@
         }
     }
 
-    // --- Drag & Select (FIXED FLAWLESS LOGIC) ---
+    // --- Drag & Select ---
     function makeDraggable(el) {
         let p1=0, p2=0, p3=0, p4=0;
         
@@ -377,29 +377,26 @@
             if (bgLocked && el.classList.contains('bg-layer')) return;
 
             const isMulti = e.ctrlKey || e.metaKey || e.shiftKey || multiSelectMode;
-            const wasSelected = selectedElements.includes(el);
             
             if (!isMulti) {
-                if (!wasSelected) {
+                if (!selectedElements.includes(el)) {
                     document.querySelectorAll('.draggable').forEach(d => d.classList.remove('selected'));
                     selectedElements = [el];
                 }
             } else {
-                if (!wasSelected) {
-                    selectedElements.push(el);
-                }
+                if (selectedElements.includes(el)) {
+                    el.classList.remove('selected');
+                    selectedElements = selectedElements.filter(i => i !== el); return;
+                } else { selectedElements.push(el); }
             }
-            
             selectedElements.forEach(i => i.classList.add('selected'));
             
             let ex = e.type === "touchstart" ? e.touches[0].clientX : e.clientX;
             let ey = e.type === "touchstart" ? e.touches[0].clientY : e.clientY;
             p3 = ex; p4 = ey;
-            let dragged = false;
 
             document.onmousemove = document.ontouchmove = function(ev) {
                 if (ev.touches && ev.touches.length > 1) return; 
-                dragged = true;
                 let cx = ev.type === "touchmove" ? ev.touches[0].clientX : ev.clientX;
                 let cy = ev.type === "touchmove" ? ev.touches[0].clientY : ev.clientY;
                 p1 = (p3 - cx) / cardScale; p2 = (p4 - cy) / cardScale; p3 = cx; p4 = cy;
@@ -407,24 +404,9 @@
                     item.style.top = (item.offsetTop - p2) + "px"; item.style.left = (item.offsetLeft - p1) + "px";
                 });
             };
-            
             document.onmouseup = document.ontouchend = function() {
                 document.onmousemove = document.ontouchmove = null;
-                document.onmouseup = document.ontouchend = null;
-                
-                // If not dragged, handle selection toggles properly
-                if (!dragged) {
-                    if (isMulti && wasSelected) {
-                        el.classList.remove('selected');
-                        selectedElements = selectedElements.filter(i => i !== el);
-                    } else if (!isMulti && wasSelected && selectedElements.length > 1) {
-                        document.querySelectorAll('.draggable').forEach(d => d.classList.remove('selected'));
-                        selectedElements = [el];
-                        el.classList.add('selected');
-                    }
-                } else {
-                    recordAction();
-                }
+                recordAction();
             };
         };
     }
