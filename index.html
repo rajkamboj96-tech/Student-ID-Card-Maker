@@ -13,8 +13,19 @@
         :root { --primary: #0056b3; --bg: #f1f3f6; }
         body { font-family: Arial, sans-serif; background: var(--bg); margin: 0; padding: 0; overflow: hidden; }
 
-        /* Toolbar */
-        .mobile-toolbar { display: flex; width: 100%; background: #fff; border-bottom: 2px solid var(--primary); padding: 4px 0; position: sticky; top: 0; z-index: 1000; justify-content: space-around; }
+        /* Top Sticky Container for both toolbars */
+        .sticky-header { position: sticky; top: 0; z-index: 1000; width: 100%; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+
+        /* New Action Toolbar (Top) */
+        .action-toolbar { display: flex; width: 100%; background: #e2e8f0; border-bottom: 1px solid #cbd5e1; padding: 6px 2px; justify-content: space-evenly; gap: 2px; }
+        .action-btn { background: #fff; border: 1px solid #94a3b8; border-radius: 4px; padding: 4px; cursor: pointer; color: #334155; display: flex; align-items: center; justify-content: center; height: 28px; min-width: 32px; flex: 1; max-width: 40px; }
+        .action-btn:hover { background: #cbd5e1; }
+        .action-btn i { width: 16px; height: 16px; } 
+        .action-btn.active-mode { background: #22c55e; color: white; border-color: #16a34a; }
+        .action-btn.danger-mode { background: #fee2e2; color: #dc3545; border-color: #dc3545; }
+
+        /* Main Mobile Toolbar */
+        .mobile-toolbar { display: flex; width: 100%; background: #fff; border-bottom: 2px solid var(--primary); padding: 4px 0; justify-content: space-around; }
         .tool-icon { display: flex; flex-direction: column; align-items: center; cursor: pointer; color: #444; padding: 6px; border-radius: 6px; }
         .tool-icon i { width: 18px; height: 18px; }
         .tool-icon.active { color: var(--primary); background: #f0f7ff; }
@@ -51,9 +62,11 @@
         input[type="color"] { width: 22px; height: 20px; padding: 0; border: 1px solid #ccc; border-radius: 3px; cursor: pointer; flex-shrink: 0; }
 
         /* Workspace & Card */
-        .workspace { padding: 10px; display: flex; justify-content: center; width: 100%; height: calc(100vh - 55px); overflow: auto; padding-bottom: 50px; position: relative; }
+        .workspace { padding: 10px; display: flex; justify-content: center; width: 100%; height: calc(100vh - 90px); overflow: auto; padding-bottom: 50px; position: relative; }
         .id-card { width: 260px; height: 450px; border: 1px solid #bbb; border-radius: 10px; background-color: white; box-shadow: 0 8px 20px rgba(0,0,0,0.1); position: relative; overflow: hidden; flex-shrink: 0; box-sizing: border-box; transform-origin: top center; transition: transform 0.1s ease-out; }
-        .id-card-header { background: var(--primary); color: white; padding: 12px 4px; font-size: 14px; font-weight: bold; text-align: center; z-index: 5; position: relative; word-wrap: break-word; }
+        
+        /* HEADER CSS UPDATED */
+        .id-card-header { background: var(--primary); color: white; padding: 12px 4px; font-size: 14px; font-weight: bold; text-align: center; z-index: 5; position: absolute; word-wrap: break-word; box-sizing: border-box; }
 
         .draggable { position: absolute; cursor: move; z-index: 10; touch-action: none; box-sizing: border-box; }
         .selected { outline: 2px dashed #ff0000; outline-offset: 1px; }
@@ -71,15 +84,28 @@
 <body>
 
 <div class="main-container">
-    <div class="mobile-toolbar">
-        <div class="tool-icon" onclick="togglePanel('p-layers', this)" title="Layers (1)"><i data-lucide="layers"></i></div>
-        <div class="tool-icon" onclick="togglePanel('p-text', this)" title="Text (2)"><i data-lucide="type"></i></div>
-        <div class="tool-icon" onclick="togglePanel('p-design', this)" title="Design (3)"><i data-lucide="palette"></i></div>
-        <div class="tool-icon" onclick="togglePanel('p-effects', this)" title="Effects (4)"><i data-lucide="wand-2"></i></div>
-        <div class="tool-icon" onclick="togglePanel('p-media', this)" title="Media (5)"><i data-lucide="image"></i></div>
-        <div class="tool-icon" onclick="handleUndo()" title="Undo"><i data-lucide="undo-2"></i></div>
-        <div class="tool-icon" onclick="handleRedo()" title="Redo"><i data-lucide="redo-2"></i></div>
-        <div class="tool-icon" onclick="togglePanel('p-project', this)" title="Project (6)"><i data-lucide="save"></i></div>
+    <div class="sticky-header">
+        <div class="action-toolbar">
+            <button class="action-btn" id="multiSelectToggleBtnTop" onclick="toggleMultiSelectMode()" title="Select/Unselect Multiple"><i data-lucide="check-square"></i></button>
+            <button class="action-btn" id="lockBtnTop" onclick="toggleLock()" title="Lock/Unlock BG"><i data-lucide="unlock"></i></button>
+            <button class="action-btn" onclick="editSelectedText()" title="Edit"><i data-lucide="edit"></i></button>
+            <button class="action-btn" onclick="doCopy()" title="Copy"><i data-lucide="copy"></i></button>
+            <button class="action-btn" onclick="doPaste()" title="Paste"><i data-lucide="clipboard-paste"></i></button>
+            <button class="action-btn" style="color: #0284c7; border-color: #0284c7;" onclick="generateAutoQRCode()" title="Auto QR Code"><i data-lucide="qr-code"></i></button>
+            <button class="action-btn" style="color: #dc3545; border-color: #dc3545;" onclick="deleteSelected()" title="Delete"><i data-lucide="trash-2"></i></button>
+            <button class="action-btn" style="color: #ea580c; border-color: #ea580c;" onclick="clearAllElements()" title="Clear All"><i data-lucide="eraser"></i></button>
+        </div>
+
+        <div class="mobile-toolbar">
+            <div class="tool-icon" onclick="togglePanel('p-layers', this)" title="Layers (1)"><i data-lucide="layers"></i></div>
+            <div class="tool-icon" onclick="togglePanel('p-text', this)" title="Text (2)"><i data-lucide="type"></i></div>
+            <div class="tool-icon" onclick="togglePanel('p-design', this)" title="Design (3)"><i data-lucide="palette"></i></div>
+            <div class="tool-icon" onclick="togglePanel('p-effects', this)" title="Effects (4)"><i data-lucide="wand-2"></i></div>
+            <div class="tool-icon" onclick="togglePanel('p-media', this)" title="Media (5)"><i data-lucide="image"></i></div>
+            <div class="tool-icon" onclick="handleUndo()" title="Undo"><i data-lucide="undo-2"></i></div>
+            <div class="tool-icon" onclick="handleRedo()" title="Redo"><i data-lucide="redo-2"></i></div>
+            <div class="tool-icon" onclick="togglePanel('p-project', this)" title="Project (6)"><i data-lucide="save"></i></div>
+        </div>
     </div>
 
     <div class="zoom-controls">
@@ -88,35 +114,45 @@
     </div>
 
     <div id="p-layers" class="context-panel">
-        <div class="btn-row">
-            <button class="btn" onclick="moveLayer('front')">Front</button>
-            <button class="btn" onclick="moveLayer('back')">Back</button>
-            <button class="btn btn-warning" id="lockBtn" onclick="toggleLock()">🔓 Lock BG</button>
-        </div>
-        <div style="display:flex; gap:5px; margin-top:5px; align-items:center;">
-            <label style="margin:0; font-size:10px; white-space:nowrap;">Width:</label>
+        <div style="display:flex; gap:5px; margin-bottom:5px; align-items:center;">
+            <label style="margin:0; font-size:10px; font-weight:bold; white-space:nowrap;">Card W:</label>
             <input type="number" id="cardWidth" value="260" onchange="resizeCard()" title="Card Width" style="flex:1;">
-            <label style="margin:0; font-size:10px; white-space:nowrap;">Height:</label>
+            <label style="margin:0; font-size:10px; font-weight:bold; white-space:nowrap;">Card H:</label>
             <input type="number" id="cardHeight" value="450" onchange="resizeCard()" title="Card Height" style="flex:1;">
+        </div>
+        
+        <div style="display:flex; gap:4px; align-items:center;">
+            <span style="font-size:10px; font-weight:bold; color:#444;">Header W:</span>
+            <input type="number" id="headerW" value="260" onchange="updateHeaderBoxSize()" style="flex:1;" title="Header Width">
+            <span style="font-size:10px; font-weight:bold; color:#444;">Header H:</span>
+            <input type="number" id="headerH" placeholder="Auto" onchange="updateHeaderBoxSize()" style="flex:1;" title="Header Height">
         </div>
     </div>
 
     <div id="p-text" class="context-panel">
         <div class="form-group">
             <label>Header Customization (ਟੈਕਸਟ, ਸਾਈਜ਼, ਰੰਗ)</label>
-            <div style="display:flex; gap:4px; margin-bottom: 6px;">
-                <input type="text" id="headerInput" value="Raj Kamboj 9465428299" onkeyup="updateHeader(this.value)" onblur="recordAction()" style="flex:3;">
+            <div style="display:flex; gap:4px; margin-bottom: 4px;">
+                <input type="text" id="headerInput" value="add institution name" onkeyup="updateHeader(this.value)" onblur="recordAction()" style="flex:3;">
                 <input type="number" id="headerSizeInput" value="14" onchange="updateHeaderSize(this.value)" style="flex:1;" title="Header Font Size">
                 <input type="color" class="color-box" id="headerBgInput" value="#0056b3" oninput="updateHeaderBg(this.value, false)" onchange="updateHeaderBg(this.value, true)" style="flex:1;" title="Header BG Color">
             </div>
         </div>
         
         <div class="form-group">
-            <label>Add / Select Text</label>
+            <label>Add / Select Text & Font</label>
             <div style="display:flex; gap:4px; margin-bottom: 4px; align-items: center;">
                 <input type="text" id="customTextInput" placeholder="ਟੈਕਸਟ ਲਿਖੋ..." style="flex:1; min-width: 0;">
                 
-                <select id="newTextSize" onchange="changeFontSizeCombo(this.value)" style="width: 50px; padding: 2px 4px; font-size: 12px; height: 28px;" title="Text Size">
+                <select id="fontFamilySelect" onchange="changeFontFamily(this.value)" style="width: 70px; padding: 2px 4px; font-size: 11px; height: 28px;" title="Font Type">
+                    <option value="Arial, sans-serif">Arial</option>
+                    <option value="'Times New Roman', Times, serif">Times</option>
+                    <option value="'Courier New', Courier, monospace">Courier</option>
+                    <option value="'Georgia', serif">Georgia</option>
+                    <option value="'Impact', sans-serif">Impact</option>
+                </select>
+
+                <select id="newTextSize" onchange="changeFontSizeCombo(this.value)" style="width: 45px; padding: 2px 4px; font-size: 11px; height: 28px;" title="Text Size">
                     <option value="10">10</option>
                     <option value="12">12</option>
                     <option value="14" selected>14</option>
@@ -135,33 +171,11 @@
                 <button class="btn" style="flex:0 0 35px; padding: 0;" onclick="addCustomText()" title="Add Text">
                     <i data-lucide="plus" style="width:16px;"></i>
                 </button>
-                
-                <button class="btn btn-warning" id="multiSelectToggleBtn" style="flex:0 0 35px; padding: 0;" onclick="toggleMultiSelectMode()" title="Select/Unselect Multiple">
-                    <i data-lucide="check-square" style="width:16px;"></i>
-                </button>
             </div>
-        </div>
-        
-        <div class="btn-row">
-            <button class="btn" onclick="editSelectedText()">✏️ Edit</button>
-            <button class="btn" onclick="doCopy()">📄 Copy</button>
-            <button class="btn" onclick="doPaste()">📋 Paste</button>
-            <button class="btn btn-danger" onclick="deleteSelected()">🗑️ Del</button>
         </div>
     </div>
 
     <div id="p-design" class="context-panel">
-        <div class="form-group">
-            <label>Font Type</label>
-            <select id="fontFamilySelect" onchange="changeFontFamily(this.value)">
-                <option value="Arial, sans-serif">Arial</option>
-                <option value="'Times New Roman', Times, serif">Times New Roman</option>
-                <option value="'Courier New', Courier, monospace">Courier New</option>
-                <option value="'Georgia', serif">Georgia</option>
-                <option value="'Impact', sans-serif">Impact</option>
-            </select>
-        </div>
-        
         <div class="effects-grid" style="grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); margin-bottom: 6px;">
             <div class="effect-item">
                 <label>Drop Shadow</label>
@@ -230,7 +244,12 @@
     </div>
 
     <div id="p-media" class="context-panel">
-        <div class="btn-row">
+        <div class="btn-row" style="margin-bottom: 4px;">
+            <button class="btn" onclick="moveLayer('front')">Front</button>
+            <button class="btn" onclick="moveLayer('back')">Back</button>
+            <button class="btn btn-warning" onclick="toggleRounding()">⭕ Round Image</button>
+        </div>
+        <div class="btn-row" style="margin-bottom: 4px;">
             <button class="btn" onclick="document.getElementById('photoUpload').click()">📷 Photo</button>
             <button class="btn" onclick="document.getElementById('bgUpload').click()">🖼️ BG</button>
             <button class="btn" onclick="document.getElementById('logoUpload').click()">❇️ Logo</button>
@@ -238,10 +257,6 @@
         <input type="file" id="photoUpload" hidden accept="image/*" onchange="uploadImage(event, 'photo')">
         <input type="file" id="bgUpload" hidden accept="image/*" onchange="uploadImage(event, 'bg')">
         <input type="file" id="logoUpload" hidden accept="image/*" onchange="uploadImage(event, 'logo')">
-        <div class="btn-row">
-            <button class="btn btn-warning" onclick="toggleRounding()">⭕ Round Image</button>
-            <button class="btn btn-success" onclick="generateAutoQRCode()">🔳 Auto QR</button>
-        </div>
     </div>
 
     <div id="p-project" class="context-panel">
@@ -250,15 +265,12 @@
             <button class="btn" style="background:#0284c7;" onclick="saveProjectZip()">💾 ZIP</button>
             <button class="btn" style="background:#4b5563;" onclick="document.getElementById('loadInput').click()">📂 Load</button>
         </div>
-        <div class="btn-row">
-            <button class="btn btn-danger" onclick="clearAllElements()">🧹 Clear All</button>
-        </div>
         <input type="file" id="loadInput" hidden accept=".zip" onchange="loadProject(event)">
     </div>
 
     <div class="workspace" id="workspaceArea">
         <div id="idCardContainer" class="id-card">
-            <div id="cardHeader" class="id-card-header">Raj Kamboj 9465428299</div>
+            <div id="cardHeader" class="id-card-header draggable" style="top: 0px; left: 0px; width: 260px;">add institution name</div>
         </div>
     </div>
 </div>
@@ -276,6 +288,7 @@
     let topZ = 600;
     let bgLocked = false;
     let multiSelectMode = false;
+    let downloadCounter = 1;
     
     let cardScale = 1.0;
     let initialPinchDistance = null;
@@ -283,14 +296,14 @@
 
     // --- Unselect on Outside Click ---
     document.addEventListener('mousedown', function(e) {
-        if (!e.target.closest('.draggable') && !e.target.closest('.mobile-toolbar') && !e.target.closest('.context-panel') && !e.target.closest('.zoom-controls')) {
+        if (!e.target.closest('.draggable') && !e.target.closest('.sticky-header') && !e.target.closest('.context-panel') && !e.target.closest('.zoom-controls')) {
             document.querySelectorAll('.draggable').forEach(d => d.classList.remove('selected'));
             selectedElements = [];
         }
     });
 
     document.addEventListener('touchstart', function(e) {
-        if (!e.target.closest('.draggable') && !e.target.closest('.mobile-toolbar') && !e.target.closest('.context-panel') && !e.target.closest('.zoom-controls')) {
+        if (!e.target.closest('.draggable') && !e.target.closest('.sticky-header') && !e.target.closest('.context-panel') && !e.target.closest('.zoom-controls')) {
             document.querySelectorAll('.draggable').forEach(d => d.classList.remove('selected'));
             selectedElements = [];
         }
@@ -302,6 +315,14 @@
     function updateHeaderBg(v, save=true) { 
         document.getElementById('cardHeader').style.backgroundColor = v; 
         if(save) recordAction(); 
+    }
+    function updateHeaderBoxSize() {
+        let h = document.getElementById('cardHeader');
+        let w = document.getElementById('headerW').value;
+        let ht = document.getElementById('headerH').value;
+        if(w) h.style.width = w + 'px';
+        if(ht) h.style.height = ht + 'px'; else h.style.height = 'auto';
+        recordAction();
     }
 
     // --- Zoom Logic ---
@@ -357,11 +378,11 @@
     // --- Toggle Multi-Select Mode ---
     function toggleMultiSelectMode() {
         multiSelectMode = !multiSelectMode;
-        const btn = document.getElementById('multiSelectToggleBtn');
+        const btn = document.getElementById('multiSelectToggleBtnTop');
         if (multiSelectMode) {
-            btn.classList.replace('btn-warning', 'btn-success');
+            btn.classList.add('active-mode');
         } else {
-            btn.classList.replace('btn-success', 'btn-warning');
+            btn.classList.remove('active-mode');
         }
     }
 
@@ -526,13 +547,35 @@
     function deleteSelected() { selectedElements.forEach(el => el.remove()); selectedElements = []; recordAction(); }
     
     function uploadImage(e, type) {
-        const r = new FileReader(); r.onload = function(ev) {
-            if(type === 'bg') { idCard.style.backgroundImage = `url(${ev.target.result})`; idCard.style.backgroundSize = 'cover'; }
+        const r = new FileReader(); 
+        r.onload = function(ev) {
+            if(type === 'bg') { 
+                const existingBg = idCard.querySelector('.bg-layer');
+                if (existingBg) existingBg.remove();
+                
+                idCard.style.backgroundImage = 'none'; 
+                
+                const w = document.createElement('div'); 
+                w.className = 'draggable bg-layer'; 
+                w.style.width = '100%'; 
+                w.style.height = '100%'; 
+                w.style.top = '0px'; 
+                w.style.left = '0px';
+                w.style.zIndex = '0'; 
+                w.innerHTML = `<img src="${ev.target.result}" style="width:100%; height:100%; object-fit:cover; pointer-events:none;">`; 
+                
+                idCard.insertBefore(w, idCard.firstChild); 
+                makeDraggable(w);
+            }
             else {
                 const w = document.createElement('div'); w.className = 'draggable img-item'; w.style.width = '80px'; w.style.height = '80px'; w.style.top = '100px'; w.style.left = '90px';
-                w.innerHTML = `<img src="${ev.target.result}" style="width:100%; height:100%; border-radius:5px;">`; idCard.appendChild(w); makeDraggable(w);
-            } recordAction();
-        }; r.readAsDataURL(e.target.files[0]);
+                w.innerHTML = `<img src="${ev.target.result}" style="width:100%; height:100%; border-radius:5px; pointer-events:none;">`; 
+                idCard.appendChild(w); 
+                makeDraggable(w);
+            } 
+            recordAction();
+        }; 
+        r.readAsDataURL(e.target.files[0]);
     }
 
     function applyColor(c, type, save=true) { 
@@ -555,7 +598,11 @@
         idCard.style.transform = 'scale(1)';
         setTimeout(() => {
             html2canvas(idCard, { scale: 3 }).then(canvas => {
-                const l = document.createElement('a'); l.download = 'ID_Card.png'; l.href = canvas.toDataURL(); l.click();
+                const l = document.createElement('a'); 
+                l.download = `ID_Card_${downloadCounter}.png`; 
+                downloadCounter++;
+                l.href = canvas.toDataURL(); 
+                l.click();
                 idCard.style.transform = `scale(${cardScale})`;
             });
         }, 100);
@@ -572,10 +619,24 @@
         const c = document.createElement('div'); c.className='draggable'; c.style.bottom='20px'; c.style.left='95px'; idCard.appendChild(c); new QRCode(c, { text: t.join(' | '), width: 70, height: 70 }); makeDraggable(c); recordAction();
     }
     function moveLayer(v) { topZ++; selectedElements.forEach(e => e.style.zIndex = v==='front' ? topZ : 1); recordAction(); }
-    function toggleLock() { bgLocked = !bgLocked; alert(bgLocked ? "BG Locked" : "Unlocked"); }
+    function toggleLock() { 
+        bgLocked = !bgLocked; 
+        const btn = document.getElementById('lockBtnTop');
+        if (bgLocked) {
+            btn.innerHTML = '<i data-lucide="lock"></i>';
+            btn.classList.add('danger-mode');
+        } else {
+            btn.innerHTML = '<i data-lucide="unlock"></i>';
+            btn.classList.remove('danger-mode');
+        }
+        lucide.createIcons();
+    }
     function resizeCard() { idCard.style.width = document.getElementById('cardWidth').value + 'px'; idCard.style.height = document.getElementById('cardHeight').value + 'px'; recordAction(); }
 
-    window.onload = recordAction;
+    window.onload = function() {
+        document.querySelectorAll('.draggable').forEach(makeDraggable);
+        recordAction();
+    };
 </script>
 </body>
 </html>
