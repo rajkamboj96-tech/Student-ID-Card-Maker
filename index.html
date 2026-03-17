@@ -14,10 +14,8 @@
         :root { --primary: #0056b3; --bg: #f1f3f6; }
         body { font-family: Arial, sans-serif; background: var(--bg); margin: 0; padding: 0; overflow: hidden; }
 
-        /* Top Sticky Container for both toolbars */
         .sticky-header { position: sticky; top: 0; z-index: 1000; width: 100%; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
 
-        /* New Action Toolbar (Top) */
         .action-toolbar { display: flex; width: 100%; background: #e2e8f0; border-bottom: 1px solid #cbd5e1; padding: 6px 2px; justify-content: space-evenly; gap: 2px; }
         .action-btn { background: #fff; border: 1px solid #94a3b8; border-radius: 4px; padding: 4px; cursor: pointer; color: #334155; display: flex; align-items: center; justify-content: center; height: 28px; min-width: 32px; flex: 1; max-width: 40px; }
         .action-btn:hover { background: #cbd5e1; }
@@ -25,13 +23,11 @@
         .action-btn.active-mode { background: #22c55e; color: white; border-color: #16a34a; }
         .action-btn.danger-mode { background: #fee2e2; color: #dc3545; border-color: #dc3545; }
 
-        /* Main Mobile Toolbar */
         .mobile-toolbar { display: flex; width: 100%; background: #fff; border-bottom: 2px solid var(--primary); padding: 4px 0; justify-content: space-around; }
-        .tool-icon { display: flex; flex-direction: column; align-items: center; cursor: pointer; color: #444; padding: 6px; border-radius: 6px; }
-        .tool-icon i { width: 18px; height: 18px; }
+        .tool-icon { display: flex; flex-direction: column; align-items: center; cursor: pointer; color: #444; padding: 4px; border-radius: 6px; }
+        .tool-icon i { width: 14px; height: 14px; }
         .tool-icon.active { color: var(--primary); background: #f0f7ff; }
 
-        /* Panels */
         .context-panel { width: 100%; background: #fff; display: none; padding: 8px 10px; box-sizing: border-box; border-bottom: 1px solid #ddd; max-height: 45vh; overflow-y: auto; }
         .form-group { margin-bottom: 5px; }
         .form-group label { display: block; font-size: 11px; font-weight: bold; color: #555; margin-bottom: 2px; }
@@ -45,7 +41,6 @@
         .btn-success { background: #28a745; color: white; }
         .btn-icon { background: #f0f0f0; color: #333; flex: 0 0 32px; border: 1px solid #ddd; font-size: 14px;}
 
-        /* COMPACT SLIDERS */
         .effects-grid { display: grid; grid-template-columns: 1fr; gap: 4px; }
         @media (min-width: 768px) {
             .effects-grid { grid-template-columns: repeat(4, 1fr); gap: 8px; }
@@ -62,24 +57,35 @@
         input[type="range"] { flex: 1; height: 10px; accent-color: var(--primary); cursor: pointer; margin: 0; }
         input[type="color"] { width: 22px; height: 20px; padding: 0; border: 1px solid #ccc; border-radius: 3px; cursor: pointer; flex-shrink: 0; }
 
-        /* Workspace & Card */
         .workspace { padding: 10px; display: flex; justify-content: center; width: 100%; height: calc(100vh - 90px); overflow: auto; padding-bottom: 50px; position: relative; }
         .id-card { width: 259.2px; height: 451.2px; border: 1px solid #bbb; border-radius: 10px; background-color: white; box-shadow: 0 8px 20px rgba(0,0,0,0.1); position: relative; overflow: hidden; flex-shrink: 0; box-sizing: border-box; transform-origin: top center; transition: transform 0.1s ease-out; }
 
         .draggable { position: absolute; cursor: move; z-index: 10; touch-action: none; box-sizing: border-box; }
-        
-        /* RESIZABLE CLASS FOR IMAGES AND SHAPES */
         .resizable { resize: both; overflow: hidden; }
-
         .selected { outline: 2px dashed #ff0000; outline-offset: 1px; }
-        .text-item { font-size: 14px; font-weight: bold; padding: 2px 4px; color: #000; word-wrap: break-word; min-width: 20px; white-space: nowrap; }
+        
+        /* text item centered */
+        .text-item { 
+            font-size: 14px; 
+            font-weight: bold; 
+            padding: 2px 4px; 
+            color: #000; 
+            word-wrap: break-word; 
+            min-width: 20px; 
+            white-space: pre-wrap; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center; 
+            text-align: center;
+            box-sizing: border-box;
+        }
+        
         .img-item img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
 
-        /* Zoom Controls */
         .zoom-controls { position: fixed; bottom: 30px; left: 15px; display: flex; flex-direction: column; gap: 10px; z-index: 1500; }
         .zoom-controls button { width: 40px; height: 40px; border-radius: 50%; background: var(--primary); color: white; font-size: 24px; font-weight: bold; border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; cursor: pointer; }
         
-        /* Watermark */
         .watermark { position: fixed; bottom: 5px; right: 10px; font-size: 12px; color: blue; font-weight: bold; z-index: 2000; pointer-events: none; }
     </style>
 </head>
@@ -107,6 +113,7 @@
             <div class="tool-icon" onclick="handleUndo()" title="Undo"><i data-lucide="undo-2"></i></div>
             <div class="tool-icon" onclick="handleRedo()" title="Redo"><i data-lucide="redo-2"></i></div>
             <div class="tool-icon" onclick="togglePanel('p-project', this)" title="Project (6)"><i data-lucide="save"></i></div>
+            <div class="tool-icon" style="color: #dc3545;" onclick="hardResetApp()" title="Reset All Data"><i data-lucide="trash-2"></i></div>
         </div>
     </div>
 
@@ -141,6 +148,25 @@
                 </select>
                 <input type="color" id="shapeColor" class="color-box" value="#0056b3" style="flex:1;" title="Shape Color">
                 <button class="btn btn-success" onclick="addShape()" style="flex:1;" title="Add Shape"><i data-lucide="plus" style="width:16px;"></i></button>
+            </div>
+        </div>
+
+        <div class="effects-grid" style="grid-template-columns: repeat(2, 1fr); gap: 4px; margin-top: 8px;">
+            <div class="effect-item">
+                <label>Box Width</label>
+                <div class="slider-group">
+                    <button class="btn-step" onclick="stepPercentSlider('widthSlider', -2, () => resizeSelectedItem(true))">-</button>
+                    <input type="range" id="widthSlider" min="10" max="600" value="100" oninput="resizeSelectedItem(false)" onchange="resizeSelectedItem(true)">
+                    <button class="btn-step" onclick="stepPercentSlider('widthSlider', 2, () => resizeSelectedItem(true))">+</button>
+                </div>
+            </div>
+            <div class="effect-item">
+                <label>Box Height</label>
+                <div class="slider-group">
+                    <button class="btn-step" onclick="stepPercentSlider('heightSlider', -2, () => resizeSelectedItem(true))">-</button>
+                    <input type="range" id="heightSlider" min="10" max="600" value="100" oninput="resizeSelectedItem(false)" onchange="resizeSelectedItem(true)">
+                    <button class="btn-step" onclick="stepPercentSlider('heightSlider', 2, () => resizeSelectedItem(true))">+</button>
+                </div>
             </div>
         </div>
     </div>
@@ -200,13 +226,50 @@
     </div>
 
     <div id="p-design" class="context-panel">
-        <div class="effects-grid" style="grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); margin-bottom: 6px;">
+        <div class="effects-grid" style="grid-template-columns: repeat(2, 1fr); margin-bottom: 6px;">
             <div class="effect-item">
                 <label>Drop Shadow</label>
                 <div class="slider-group">
                     <button class="btn-step" onclick="stepPercentSlider('shadowSlider', -2, () => changeShadow(true))">-</button>
-                    <input type="range" id="shadowSlider" min="0" max="25" value="0" oninput="changeShadow(false)" onchange="changeShadow(true)">
+                    <input type="range" id="shadowSlider" min="0" max="40" value="0" oninput="changeShadow(false)" onchange="changeShadow(true)">
                     <button class="btn-step" onclick="stepPercentSlider('shadowSlider', 2, () => changeShadow(true))">+</button>
+                </div>
+            </div>
+            <div class="effect-item">
+                <label>Shadow Angle</label>
+                <div class="slider-group">
+                    <button class="btn-step" onclick="stepPercentSlider('shadowAngleSlider', -5, () => changeShadow(true))">-</button>
+                    <input type="range" id="shadowAngleSlider" min="0" max="360" value="45" oninput="changeShadow(false)" onchange="changeShadow(true)">
+                    <button class="btn-step" onclick="stepPercentSlider('shadowAngleSlider', 5, () => changeShadow(true))">+</button>
+                </div>
+            </div>
+            
+            <div class="effect-item">
+                <label style="display:flex; justify-content:center; align-items:center; gap:5px;">
+                    3D Depth 
+                    <input type="color" id="depthColor" value="#888888" oninput="apply3DDepth(false)" onchange="apply3DDepth(true)" style="width:14px;height:14px;padding:0; border:none; cursor:pointer;" title="3D Color">
+                </label>
+                <div class="slider-group">
+                    <button class="btn-step" onclick="stepPercentSlider('depthSlider', -2, () => apply3DDepth(true))">-</button>
+                    <input type="range" id="depthSlider" min="0" max="50" value="0" oninput="apply3DDepth(false)" onchange="apply3DDepth(true)">
+                    <button class="btn-step" onclick="stepPercentSlider('depthSlider', 2, () => apply3DDepth(true))">+</button>
+                </div>
+            </div>
+            <div class="effect-item">
+                <label>3D Angle</label>
+                <div class="slider-group">
+                    <button class="btn-step" onclick="stepPercentSlider('depthAngleSlider', -5, () => apply3DDepth(true))">-</button>
+                    <input type="range" id="depthAngleSlider" min="0" max="360" value="45" oninput="apply3DDepth(false)" onchange="apply3DDepth(true)">
+                    <button class="btn-step" onclick="stepPercentSlider('depthAngleSlider', 5, () => apply3DDepth(true))">+</button>
+                </div>
+            </div>
+
+            <div class="effect-item">
+                <label>Rotate (Circular)</label>
+                <div class="slider-group">
+                    <button class="btn-step" onclick="stepPercentSlider('rotateSlider', -5, () => rotateSelectedItem(true))">-</button>
+                    <input type="range" id="rotateSlider" min="0" max="360" value="0" oninput="rotateSelectedItem(false)" onchange="rotateSelectedItem(true)">
+                    <button class="btn-step" onclick="stepPercentSlider('rotateSlider', 5, () => rotateSelectedItem(true))">+</button>
                 </div>
             </div>
             <div class="effect-item">
@@ -215,25 +278,6 @@
                     <button class="btn-step" onclick="stepPercentSlider('spacingSlider', -2, () => adjustLineSpacing(true))">-</button>
                     <input type="range" id="spacingSlider" min="-10" max="40" value="5" oninput="adjustLineSpacing(false)" onchange="adjustLineSpacing(true)">
                     <button class="btn-step" onclick="stepPercentSlider('spacingSlider', 2, () => adjustLineSpacing(true))">+</button>
-                </div>
-            </div>
-        </div>
-        
-        <div class="effects-grid" style="grid-template-columns: repeat(2, 1fr); gap: 4px; margin-bottom: 6px;">
-            <div class="effect-item">
-                <label>Box Width</label>
-                <div class="slider-group">
-                    <button class="btn-step" onclick="stepPercentSlider('widthSlider', -2, () => resizeSelectedItem(true))">-</button>
-                    <input type="range" id="widthSlider" min="10" max="600" value="100" oninput="resizeSelectedItem(false)" onchange="resizeSelectedItem(true)">
-                    <button class="btn-step" onclick="stepPercentSlider('widthSlider', 2, () => resizeSelectedItem(true))">+</button>
-                </div>
-            </div>
-            <div class="effect-item">
-                <label>Box Height</label>
-                <div class="slider-group">
-                    <button class="btn-step" onclick="stepPercentSlider('heightSlider', -2, () => resizeSelectedItem(true))">-</button>
-                    <input type="range" id="heightSlider" min="10" max="600" value="100" oninput="resizeSelectedItem(false)" onchange="resizeSelectedItem(true)">
-                    <button class="btn-step" onclick="stepPercentSlider('heightSlider', 2, () => resizeSelectedItem(true))">+</button>
                 </div>
             </div>
         </div>
@@ -255,14 +299,6 @@
                 <input type="range" id="itemBorderSlider" min="0" max="20" value="0" oninput="applyItemBorder(false)" onchange="applyItemBorder(true)">
                 <button class="btn-step" onclick="stepPercentSlider('itemBorderSlider', 2, () => applyItemBorder(true))">+</button>
                 <span class="mini-label">Border</span>
-            </div>
-
-            <div class="effect-row-compact">
-                <input type="color" id="depthColor" value="#888888" oninput="apply3DDepth(false)" onchange="apply3DDepth(true)" title="3D Color">
-                <button class="btn-step" onclick="stepPercentSlider('depthSlider', -2, () => apply3DDepth(true))">-</button>
-                <input type="range" id="depthSlider" min="0" max="30" value="0" oninput="apply3DDepth(false)" onchange="apply3DDepth(true)">
-                <button class="btn-step" onclick="stepPercentSlider('depthSlider', 2, () => apply3DDepth(true))">+</button>
-                <span class="mini-label">3D Depth</span>
             </div>
 
             <div class="effect-row-compact">
@@ -335,7 +371,47 @@
     let initialPinchDistance = null;
     let initialScale = 1.0;
 
-    // --- Unselect on Outside Click ---
+    window.onload = function() {
+        const savedData = localStorage.getItem('kambojIDMakerState');
+        if (savedData) {
+            try {
+                const state = JSON.parse(savedData);
+                applyState(state);
+                const currentSelection = [...selectedElements];
+                selectedElements.forEach(el => el.classList.remove('selected'));
+                const stateToSave = { html: idCard.innerHTML, bg: idCard.style.backgroundImage, bgColor: idCard.style.backgroundColor, width: idCard.style.width, height: idCard.style.height, border: idCard.style.border };
+                history.push(stateToSave);
+                historyIndex = 0;
+                currentSelection.forEach(el => el.classList.add('selected'));
+            } catch (e) {
+                console.error("Could not load saved data", e);
+                document.querySelectorAll('.draggable').forEach(makeDraggable);
+                recordAction();
+            }
+        } else {
+            document.querySelectorAll('.draggable').forEach(makeDraggable);
+            recordAction();
+        }
+    };
+
+    function hardResetApp() {
+        if (confirm("Are you sure you want to completely RESET? This will delete all your saved card data!")) {
+            localStorage.removeItem('kambojIDMakerState'); 
+            document.querySelectorAll('.draggable').forEach(el => el.remove()); 
+            idCard.style.backgroundImage = 'none'; 
+            idCard.style.backgroundColor = '#ffffff'; 
+            idCard.style.border = '1px solid #bbb';
+            
+            document.getElementById('cardWidth').value = 2.7;
+            document.getElementById('cardHeight').value = 4.7;
+            resizeCard(); 
+            
+            history = [];
+            historyIndex = -1;
+            recordAction(); 
+        }
+    }
+
     document.addEventListener('mousedown', function(e) {
         if (!e.target.closest('.draggable') && !e.target.closest('.sticky-header') && !e.target.closest('.context-panel') && !e.target.closest('.zoom-controls')) {
             document.querySelectorAll('.draggable').forEach(d => d.classList.remove('selected'));
@@ -350,7 +426,6 @@
         }
     }, {passive: true});
 
-    // --- Zoom Logic ---
     function zoomCard(step) {
         cardScale += step;
         if(cardScale < 0.4) cardScale = 0.4;
@@ -379,33 +454,60 @@
 
     workspaceArea.addEventListener('touchend', function(e) { if (e.touches.length < 2) initialPinchDistance = null; });
 
-    // --- History Logic ---
     function recordAction() {
         const currentSelection = [...selectedElements];
         selectedElements.forEach(el => el.classList.remove('selected'));
         const state = { html: idCard.innerHTML, bg: idCard.style.backgroundImage, bgColor: idCard.style.backgroundColor, width: idCard.style.width, height: idCard.style.height, border: idCard.style.border };
+        
         if (historyIndex >= 0 && history[historyIndex].html === state.html && history[historyIndex].border === state.border && history[historyIndex].bgColor === state.bgColor) {
-            currentSelection.forEach(el => el.classList.add('selected')); return;
+            currentSelection.forEach(el => el.classList.add('selected')); 
+            return;
         }
-        historyIndex++; history = history.slice(0, historyIndex); history.push(state);
+        
+        historyIndex++; 
+        history = history.slice(0, historyIndex); 
+        history.push(state);
         currentSelection.forEach(el => el.classList.add('selected'));
+
+        try {
+            localStorage.setItem('kambojIDMakerState', JSON.stringify(state));
+        } catch (e) {
+            console.warn("Storage full.");
+        }
     }
 
-    function handleUndo() { if (historyIndex > 0) { historyIndex--; applyState(history[historyIndex]); } }
-    function handleRedo() { if (historyIndex < history.length - 1) { historyIndex++; applyState(history[historyIndex]); } }
+    function handleUndo() { 
+        if (historyIndex > 0) { 
+            historyIndex--; 
+            applyState(history[historyIndex]); 
+            try { localStorage.setItem('kambojIDMakerState', JSON.stringify(history[historyIndex])); } catch(e){}
+        } 
+    }
+    
+    function handleRedo() { 
+        if (historyIndex < history.length - 1) { 
+            historyIndex++; 
+            applyState(history[historyIndex]); 
+            try { localStorage.setItem('kambojIDMakerState', JSON.stringify(history[historyIndex])); } catch(e){}
+        } 
+    }
 
     function applyState(state) {
-        idCard.innerHTML = state.html; idCard.style.backgroundImage = state.bg; idCard.style.backgroundColor = state.bgColor;
-        idCard.style.width = state.width; idCard.style.height = state.height; idCard.style.border = state.border;
+        idCard.innerHTML = state.html; 
+        idCard.style.backgroundImage = state.bg; 
+        idCard.style.backgroundColor = state.bgColor;
+        idCard.style.width = state.width; 
+        idCard.style.height = state.height; 
+        idCard.style.border = state.border;
         
         let res = parseFloat(document.getElementById('cardRes').value) || 96;
         if (state.width) document.getElementById('cardWidth').value = (parseFloat(state.width) / res).toFixed(2);
         if (state.height) document.getElementById('cardHeight').value = (parseFloat(state.height) / res).toFixed(2);
         
-        selectedElements = []; document.querySelectorAll('.draggable').forEach(makeDraggable);
+        selectedElements = []; 
+        document.querySelectorAll('.draggable').forEach(makeDraggable);
     }
 
-    // --- Toggle Multi-Select Mode ---
     function toggleMultiSelectMode() {
         multiSelectMode = !multiSelectMode;
         const btn = document.getElementById('multiSelectToggleBtnTop');
@@ -416,7 +518,6 @@
         }
     }
 
-    // --- Drag & Select ---
     function makeDraggable(el) {
         let p1=0, p2=0, p3=0, p4=0;
         let startX=0, startY=0;
@@ -506,14 +607,22 @@
                     if(found) sizeCombo.value = currentSize;
                 }
             }
-            let w = parseInt(window.getComputedStyle(el).width);
-            let h = parseInt(window.getComputedStyle(el).height);
+            let w = el.offsetWidth;
+            let h = el.offsetHeight;
             if(w && document.getElementById('widthSlider')) document.getElementById('widthSlider').value = w;
             if(h && document.getElementById('heightSlider')) document.getElementById('heightSlider').value = h;
+            
+            let rot = el.getAttribute('data-rotation') || 0;
+            if(document.getElementById('rotateSlider')) document.getElementById('rotateSlider').value = rot;
+
+            let shadowAngle = el.getAttribute('data-shadow-angle') || 45;
+            if(document.getElementById('shadowAngleSlider')) document.getElementById('shadowAngleSlider').value = shadowAngle;
+
+            let depthAngle = el.getAttribute('data-depth-angle') || 45;
+            if(document.getElementById('depthAngleSlider')) document.getElementById('depthAngleSlider').value = depthAngle;
         }
     }
 
-    // NEW LOGIC: Calculate exactly 2% of the slider's length
     function stepPercentSlider(id, percent, callback) {
         const slider = document.getElementById(id); 
         if(!slider) return;
@@ -522,13 +631,9 @@
         let maxVal = parseFloat(slider.max) || 100;
         let minVal = parseFloat(slider.min) || 0;
         
-        // Calculate the total range (length) of the combobox
         let range = maxVal - minVal;
-        
-        // Calculate the step amount (2% of the total range)
         let stepAmount = range * (percent / 100);
         
-        // Ensure it always moves by at least 1 pixel (so it doesn't get stuck on small numbers)
         if (Math.abs(stepAmount) < 1) {
             stepAmount = percent > 0 ? 1 : -1;
         }
@@ -542,21 +647,31 @@
         callback(); 
     }
 
-    // Scale Image by percentage (Updated to exactly +/- 2% as well)
     function scaleSelectedImage(scaleFactor) {
         let targets = selectedElements.length > 0 ? selectedElements : document.querySelectorAll('.bg-layer');
         if(targets.length === 0) return;
         
         targets.forEach(el => {
-            if(el.classList.contains('bg-layer') || el.classList.contains('img-item') || el.classList.contains('shape-item')) {
-                let w = parseFloat(getComputedStyle(el).width);
-                let h = parseFloat(getComputedStyle(el).height);
+            if(el.classList.contains('bg-layer') || el.classList.contains('img-item') || el.classList.contains('shape-item') || el.classList.contains('text-item')) {
+                let w = el.offsetWidth;
+                let h = el.offsetHeight;
                 let newW = w * scaleFactor;
                 let newH = h * scaleFactor;
+                
+                let diffW = newW - w;
+                let diffH = newH - h;
+                
+                let currentLeft = el.offsetLeft || 0;
+                let currentTop = el.offsetTop || 0;
                 
                 if(newW > 20 && newH > 20) {
                     el.style.width = newW + 'px';
                     el.style.height = newH + 'px';
+                    
+                    if(!el.classList.contains('bg-layer')) {
+                        el.style.left = (currentLeft - diffW / 2) + 'px';
+                        el.style.top = (currentTop - diffH / 2) + 'px';
+                    }
                 }
             }
         });
@@ -565,12 +680,39 @@
 
     function resizeSelectedItem(save = false) {
         if(selectedElements.length === 0) return;
-        const w = document.getElementById('widthSlider').value;
-        const h = document.getElementById('heightSlider').value;
+        
+        const targetW = parseFloat(document.getElementById('widthSlider').value);
+        const targetH = parseFloat(document.getElementById('heightSlider').value);
         
         selectedElements.forEach(el => {
-            el.style.width = w + 'px';
-            el.style.height = h + 'px';
+            let baseW = el.offsetWidth || 0;
+            let baseH = el.offsetHeight || 0;
+            
+            if (!el.style.width) el.style.width = baseW + 'px';
+            if (!el.style.height) el.style.height = baseH + 'px';
+
+            let diffW = targetW - baseW;
+            let diffH = targetH - baseH;
+            
+            let currentLeft = el.offsetLeft || 0;
+            let currentTop = el.offsetTop || 0;
+            
+            el.style.width = targetW + 'px';
+            el.style.height = targetH + 'px';
+            
+            el.style.left = (currentLeft - diffW / 2) + 'px';
+            el.style.top = (currentTop - diffH / 2) + 'px';
+        });
+        if(save) recordAction();
+    }
+
+    function rotateSelectedItem(save = false) {
+        if(selectedElements.length === 0) return;
+        const deg = document.getElementById('rotateSlider').value;
+        
+        selectedElements.forEach(el => {
+            el.style.transform = `rotate(${deg}deg)`;
+            el.setAttribute('data-rotation', deg); 
         });
         if(save) recordAction();
     }
@@ -585,26 +727,71 @@
         selectedElements.forEach(el => { if(el.classList.contains('text-item')) el.style.webkitTextStroke = `${w}px ${c}`; else el.style.outline = `${w}px solid ${c}`; });
         if(save) recordAction();
     }
+    
     function applyItemBorder(save = false) {
         const w = document.getElementById('itemBorderSlider').value; const c = document.getElementById('itemBorderColor').value;
         selectedElements.forEach(el => el.style.border = `${w}px solid ${c}`); if(save) recordAction();
     }
+
     function apply3DDepth(save = false) {
-        const d = parseInt(document.getElementById('depthSlider').value); const c = document.getElementById('depthColor').value;
+        const d = parseInt(document.getElementById('depthSlider').value); 
+        const a = parseFloat(document.getElementById('depthAngleSlider').value);
+        const c = document.getElementById('depthColor').value;
+        const rad = a * Math.PI / 180;
+        const xDir = Math.cos(rad);
+        const yDir = Math.sin(rad);
+
         selectedElements.forEach(el => {
-            let s = ''; for(let i=1; i<=d; i++) { s += `${i}px ${i}px 0px ${c}${i===d?'':', '}`; }
+            let s = ''; 
+            for(let i=1; i<=d; i++) { 
+                s += `${Math.round(i*xDir)}px ${Math.round(i*yDir)}px 0px ${c}${i===d?'':', '}`; 
+            }
             if(d===0) s = 'none';
             if(el.classList.contains('text-item')) el.style.textShadow = s; else el.style.boxShadow = s;
-        }); if(save) recordAction();
+            el.setAttribute('data-depth-angle', a);
+        }); 
+        if(save) recordAction();
     }
+
     function applyCardBorder(save = false) {
         const w = document.getElementById('cardBorderSlider').value; const c = document.getElementById('cardBorderColor').value;
         idCard.style.border = `${w}px solid ${c}`; if(save) recordAction();
     }
+
+    // FIXED: Shadow with direction at angle 0 = down, and as slider grows, spreads in all directions (using filter drop-shadow now)
     function changeShadow(save = false) { 
-        const v = document.getElementById('shadowSlider').value;
-        selectedElements.forEach(el => el.style.filter = v > 0 ? `drop-shadow(2px 4px ${v}px rgba(0,0,0,0.6))` : 'none'); if(save) recordAction(); 
+        const v = parseFloat(document.getElementById('shadowSlider').value);
+        const a = parseFloat(document.getElementById('shadowAngleSlider').value);
+        // When angle is 0, shadow directly downwards. Use CSS drop-shadow filter with offset.
+        // For spread effect: we increase blur as value grows, but also a slight offset. 
+        // To simulate "spread in all directions" when value is high, we can use a very subtle offset and larger blur.
+        // But drop-shadow does not have spread. To get closer, we use combination: at large v, reduce offset and increase blur.
+        let offsetX, offsetY, blur;
+        if (v === 0) {
+            offsetX = 0; offsetY = 0; blur = 0;
+        } else {
+            // Normalize angle: 0 degrees = down (positive y)
+            const rad = a * Math.PI / 180;
+            // Base offset magnitude = v * 0.5 (so it moves outward)
+            let baseOffset = v * 0.7; // make offset visible
+            offsetX = baseOffset * Math.sin(rad); // using sin for x, cos for y? adjust: x = sin, y = cos for 0°=down? 
+            // Let's define: 0° = down => (0, +1). So x = sin(rad), y = cos(rad).
+            offsetX = baseOffset * Math.sin(rad);
+            offsetY = baseOffset * Math.cos(rad);
+            // blur increases with v to simulate spread
+            blur = Math.max(2, v * 0.8);
+        }
+        selectedElements.forEach(el => {
+            if (v > 0) {
+                el.style.filter = `drop-shadow(${offsetX.toFixed(1)}px ${offsetY.toFixed(1)}px ${blur.toFixed(1)}px rgba(0,0,0,0.6))`;
+            } else {
+                el.style.filter = 'none';
+            }
+            el.setAttribute('data-shadow-angle', a);
+        }); 
+        if(save) recordAction(); 
     }
+
     function adjustLineSpacing(save = false) {
         const gap = document.getElementById('spacingSlider').value;
         if (selectedElements.length < 2) return;
@@ -647,6 +834,7 @@
         d.className = 'draggable shape-item resizable';
         d.style.top = '100px';
         d.style.left = '50px';
+        d.setAttribute('data-rotation', '0');
         
         let content = '';
         if (shapeType === 'square') {
@@ -739,6 +927,7 @@
                     w.style.height = '80px'; 
                     w.style.top = '100px'; 
                     w.style.left = '90px';
+                    w.setAttribute('data-rotation', '0');
                     w.innerHTML = `<img src="${ev.target.result}" style="width:100%; height:100%; border-radius:5px; pointer-events:none;">`; 
                     idCard.appendChild(w); 
                     makeDraggable(w);
@@ -803,7 +992,16 @@
         zip.generateAsync({type:"blob"}).then(c => { const l = document.createElement('a'); l.href = URL.createObjectURL(c); l.download = "ID_Card_Project.zip"; l.click(); });
     }
     function loadProject(e) { const file = e.target.files[0]; if (!file) return; JSZip.loadAsync(file).then(zip => zip.file("project.json").async("string").then(data => { applyState(JSON.parse(data)); recordAction(); })); }
-    function clearAllElements() { if (confirm("Clear All?")) { document.querySelectorAll('.draggable').forEach(el => el.remove()); idCard.style.backgroundImage = 'none'; idCard.style.backgroundColor = '#ffffff'; recordAction(); } }
+    
+    function clearAllElements() { 
+        if (confirm("Clear All Objects? (Note: This does not delete memory. Use the Red Trash button to reset completely.)")) { 
+            document.querySelectorAll('.draggable').forEach(el => el.remove()); 
+            idCard.style.backgroundImage = 'none'; 
+            idCard.style.backgroundColor = '#ffffff'; 
+            recordAction(); 
+        } 
+    }
+    
     function toggleRounding() { selectedElements.forEach(el => { const img = el.querySelector('img'); if(img) img.style.borderRadius = img.style.borderRadius === '50%' ? '5px' : '50%'; }); recordAction(); }
     function generateAutoQRCode() {
         let t = []; document.querySelectorAll('.text-item').forEach(e => t.push(e.innerText));
@@ -831,11 +1029,6 @@
         idCard.style.height = (hInches * res) + 'px'; 
         recordAction(); 
     }
-
-    window.onload = function() {
-        document.querySelectorAll('.draggable').forEach(makeDraggable);
-        recordAction();
-    };
 </script>
 </body>
 </html>
