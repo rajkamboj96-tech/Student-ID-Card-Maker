@@ -10,6 +10,19 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script&family=Lobster&family=Oswald&family=Pacifico&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     
+    <link rel="manifest" href="manifest.json">
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('sw.js').then(reg => {
+            console.log('App is ready for offline use!', reg);
+          }).catch(err => {
+            console.log('Service Worker failed:', err);
+          });
+        });
+      }
+    </script>
+
     <style>
         :root { --primary: #0056b3; --bg: #f1f3f6; }
         body { font-family: Arial, sans-serif; background: var(--bg); margin: 0; padding: 0; overflow: hidden; }
@@ -64,7 +77,6 @@
         .resizable { resize: both; overflow: hidden; }
         .selected { outline: 2px dashed #ff0000; outline-offset: 1px; }
         
-        /* text item centered */
         .text-item { 
             font-size: 14px; 
             font-weight: bold; 
@@ -758,35 +770,19 @@
         idCard.style.border = `${w}px solid ${c}`; if(save) recordAction();
     }
 
-    // FIXED: Shadow with direction at angle 0 = down, and as slider grows, spreads in all directions (using filter drop-shadow now)
+    // UPDATE: Shadow Function with Spread and 0 angle fixes
     function changeShadow(save = false) { 
         const v = parseFloat(document.getElementById('shadowSlider').value);
         const a = parseFloat(document.getElementById('shadowAngleSlider').value);
-        // When angle is 0, shadow directly downwards. Use CSS drop-shadow filter with offset.
-        // For spread effect: we increase blur as value grows, but also a slight offset. 
-        // To simulate "spread in all directions" when value is high, we can use a very subtle offset and larger blur.
-        // But drop-shadow does not have spread. To get closer, we use combination: at large v, reduce offset and increase blur.
-        let offsetX, offsetY, blur;
-        if (v === 0) {
-            offsetX = 0; offsetY = 0; blur = 0;
-        } else {
-            // Normalize angle: 0 degrees = down (positive y)
-            const rad = a * Math.PI / 180;
-            // Base offset magnitude = v * 0.5 (so it moves outward)
-            let baseOffset = v * 0.7; // make offset visible
-            offsetX = baseOffset * Math.sin(rad); // using sin for x, cos for y? adjust: x = sin, y = cos for 0°=down? 
-            // Let's define: 0° = down => (0, +1). So x = sin(rad), y = cos(rad).
-            offsetX = baseOffset * Math.sin(rad);
-            offsetY = baseOffset * Math.cos(rad);
-            // blur increases with v to simulate spread
-            blur = Math.max(2, v * 0.8);
-        }
+        
+        const rad = (a + 90) * Math.PI / 180;
+        
+        const distance = v * 0.3; 
+        const x = (distance * Math.cos(rad)).toFixed(1);
+        const y = (distance * Math.sin(rad)).toFixed(1);
+
         selectedElements.forEach(el => {
-            if (v > 0) {
-                el.style.filter = `drop-shadow(${offsetX.toFixed(1)}px ${offsetY.toFixed(1)}px ${blur.toFixed(1)}px rgba(0,0,0,0.6))`;
-            } else {
-                el.style.filter = 'none';
-            }
+            el.style.filter = v > 0 ? `drop-shadow(${x}px ${y}px ${v}px rgba(0,0,0,0.7))` : 'none';
             el.setAttribute('data-shadow-angle', a);
         }); 
         if(save) recordAction(); 
