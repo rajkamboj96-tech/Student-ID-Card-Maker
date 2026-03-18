@@ -351,6 +351,7 @@
 
     <div id="p-project" class="context-panel">
         <div class="btn-row">
+            <button class="btn" style="background:#6b7280;" onclick="takeScreenshot()">📸 Screenshot</button>
             <button class="btn btn-success" onclick="downloadPNG()">PNG</button>
             <button class="btn" style="background:#0284c7;" onclick="saveProjectZip()">💾 ZIP</button>
             <button class="btn" style="background:#4b5563;" onclick="document.getElementById('loadInput').click()">📂 Load</button>
@@ -770,7 +771,6 @@
         idCard.style.border = `${w}px solid ${c}`; if(save) recordAction();
     }
 
-    // UPDATE: Shadow Function with Spread and 0 angle fixes
     function changeShadow(save = false) { 
         const v = parseFloat(document.getElementById('shadowSlider').value);
         const a = parseFloat(document.getElementById('shadowAngleSlider').value);
@@ -983,6 +983,92 @@
             });
         }, 100);
     }
+
+    function takeScreenshot() {
+        // Save current selection state
+        const currentlySelected = [...selectedElements];
+        currentlySelected.forEach(el => el.classList.remove('selected'));
+        
+        // Get card dimensions and resolution
+        const cardWidth = idCard.offsetWidth;
+        const cardHeight = idCard.offsetHeight;
+        const res = parseFloat(document.getElementById('cardRes').value) || 96;
+        
+        // Calculate scale to maintain quality
+        const targetWidth = cardWidth;
+        const targetHeight = cardHeight;
+        
+        // Temporarily remove transform scale for screenshot
+        const currentScale = cardScale;
+        idCard.style.transform = 'scale(1)';
+        
+        // Store original styles to ensure they render properly
+        const originalOverflow = idCard.style.overflow;
+        idCard.style.overflow = 'visible'; // Allow shadows to show outside card if needed
+        
+        setTimeout(() => {
+            html2canvas(idCard, {
+                scale: 3, // High quality capture
+                width: targetWidth,
+                height: targetHeight,
+                backgroundColor: null,
+                allowTaint: true,
+                useCORS: true,
+                logging: false,
+                windowWidth: targetWidth,
+                windowHeight: targetHeight,
+                // Important: Enable shadow rendering
+                shadow: true,
+                // Better quality settings
+                imageTimeout: 0,
+                removeContainer: true,
+                // Ensure all effects are captured
+                onclone: function(clonedDoc) {
+                    // Additional processing if needed for cloned document
+                    const clonedCard = clonedDoc.getElementById('idCardContainer');
+                    if (clonedCard) {
+                        // Ensure all shadow effects are preserved
+                        clonedCard.querySelectorAll('.draggable').forEach(el => {
+                            // Force shadow rendering by adding a slight transform if needed
+                            if (el.style.filter && el.style.filter.includes('drop-shadow')) {
+                                el.style.transform = el.style.transform || 'translateZ(0)';
+                            }
+                        });
+                    }
+                }
+            }).then(canvas => {
+                // Create download link
+                const link = document.createElement('a');
+                link.download = `ID_Card_Screenshot_${downloadCounter}.png`;
+                downloadCounter++;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                
+                // Restore original styles
+                idCard.style.transform = `scale(${currentScale})`;
+                idCard.style.overflow = originalOverflow;
+                
+                // Restore selection
+                currentlySelected.forEach(el => el.classList.add('selected'));
+                selectedElements = currentlySelected;
+                
+                // Re-initialize Lucide icons if needed
+                if (typeof lucide !== 'undefined') {
+                    lucide.createIcons();
+                }
+            }).catch(error => {
+                console.error('Screenshot failed:', error);
+                alert('Failed to take screenshot. Please try again.');
+                
+                // Restore original scale on error
+                idCard.style.transform = `scale(${currentScale})`;
+                idCard.style.overflow = originalOverflow;
+                currentlySelected.forEach(el => el.classList.add('selected'));
+                selectedElements = currentlySelected;
+            });
+        }, 200); // Slightly longer timeout to ensure all styles are applied
+    }
+    
     async function saveProjectZip() {
         const zip = new JSZip(); zip.file("project.json", JSON.stringify({ html: idCard.innerHTML, bg: idCard.style.backgroundImage, bgColor: idCard.style.backgroundColor, width: idCard.style.width, height: idCard.style.height, border: idCard.style.border }));
         zip.generateAsync({type:"blob"}).then(c => { const l = document.createElement('a'); l.href = URL.createObjectURL(c); l.download = "ID_Card_Project.zip"; l.click(); });
