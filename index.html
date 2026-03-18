@@ -970,18 +970,72 @@
     }
     
     function downloadPNG() {
-        selectedElements.forEach(el => el.classList.remove('selected'));
+        // Save current selection state
+        const currentlySelected = [...selectedElements];
+        currentlySelected.forEach(el => el.classList.remove('selected'));
+        
+        // Save current zoom
+        const currentScale = cardScale;
+        
+        // Temporarily set zoom to 100%
         idCard.style.transform = 'scale(1)';
+        cardScale = 1.0;
+        
+        // Store original overflow
+        const originalOverflow = idCard.style.overflow;
+        idCard.style.overflow = 'visible';
+        
         setTimeout(() => {
-            html2canvas(idCard, { scale: 3 }).then(canvas => {
+            html2canvas(idCard, { 
+                scale: 3,
+                backgroundColor: null,
+                allowTaint: true,
+                useCORS: true,
+                logging: false,
+                shadow: true,
+                imageTimeout: 0,
+                removeContainer: true,
+                onclone: function(clonedDoc) {
+                    const clonedCard = clonedDoc.getElementById('idCardContainer');
+                    if (clonedCard) {
+                        clonedCard.querySelectorAll('.draggable').forEach(el => {
+                            if (el.style.filter && el.style.filter.includes('drop-shadow')) {
+                                el.style.transform = el.style.transform || 'translateZ(0)';
+                            }
+                        });
+                    }
+                }
+            }).then(canvas => {
                 const l = document.createElement('a'); 
                 l.download = `ID_Card_${downloadCounter}.png`; 
                 downloadCounter++;
                 l.href = canvas.toDataURL(); 
                 l.click();
-                idCard.style.transform = `scale(${cardScale})`;
+                
+                // Restore original zoom
+                idCard.style.transform = `scale(${currentScale})`;
+                idCard.style.overflow = originalOverflow;
+                cardScale = currentScale;
+                
+                // Restore selection
+                currentlySelected.forEach(el => el.classList.add('selected'));
+                selectedElements = currentlySelected;
+                
+                if (typeof lucide !== 'undefined') {
+                    lucide.createIcons();
+                }
+            }).catch(error => {
+                console.error('PNG download failed:', error);
+                alert('Failed to download PNG. Please try again.');
+                
+                // Restore original zoom on error
+                idCard.style.transform = `scale(${currentScale})`;
+                idCard.style.overflow = originalOverflow;
+                cardScale = currentScale;
+                currentlySelected.forEach(el => el.classList.add('selected'));
+                selectedElements = currentlySelected;
             });
-        }, 100);
+        }, 200);
     }
 
     function takeScreenshot() {
@@ -989,47 +1043,31 @@
         const currentlySelected = [...selectedElements];
         currentlySelected.forEach(el => el.classList.remove('selected'));
         
-        // Get card dimensions and resolution
-        const cardWidth = idCard.offsetWidth;
-        const cardHeight = idCard.offsetHeight;
-        const res = parseFloat(document.getElementById('cardRes').value) || 96;
-        
-        // Calculate scale to maintain quality
-        const targetWidth = cardWidth;
-        const targetHeight = cardHeight;
-        
-        // Temporarily remove transform scale for screenshot
+        // Save current zoom
         const currentScale = cardScale;
-        idCard.style.transform = 'scale(1)';
         
-        // Store original styles to ensure they render properly
+        // Temporarily set zoom to 100%
+        idCard.style.transform = 'scale(1)';
+        cardScale = 1.0;
+        
+        // Store original styles
         const originalOverflow = idCard.style.overflow;
         idCard.style.overflow = 'visible'; // Allow shadows to show outside card if needed
         
         setTimeout(() => {
             html2canvas(idCard, {
                 scale: 3, // High quality capture
-                width: targetWidth,
-                height: targetHeight,
                 backgroundColor: null,
                 allowTaint: true,
                 useCORS: true,
                 logging: false,
-                windowWidth: targetWidth,
-                windowHeight: targetHeight,
-                // Important: Enable shadow rendering
                 shadow: true,
-                // Better quality settings
                 imageTimeout: 0,
                 removeContainer: true,
-                // Ensure all effects are captured
                 onclone: function(clonedDoc) {
-                    // Additional processing if needed for cloned document
                     const clonedCard = clonedDoc.getElementById('idCardContainer');
                     if (clonedCard) {
-                        // Ensure all shadow effects are preserved
                         clonedCard.querySelectorAll('.draggable').forEach(el => {
-                            // Force shadow rendering by adding a slight transform if needed
                             if (el.style.filter && el.style.filter.includes('drop-shadow')) {
                                 el.style.transform = el.style.transform || 'translateZ(0)';
                             }
@@ -1044,15 +1082,15 @@
                 link.href = canvas.toDataURL('image/png');
                 link.click();
                 
-                // Restore original styles
+                // Restore original zoom
                 idCard.style.transform = `scale(${currentScale})`;
                 idCard.style.overflow = originalOverflow;
+                cardScale = currentScale;
                 
                 // Restore selection
                 currentlySelected.forEach(el => el.classList.add('selected'));
                 selectedElements = currentlySelected;
                 
-                // Re-initialize Lucide icons if needed
                 if (typeof lucide !== 'undefined') {
                     lucide.createIcons();
                 }
@@ -1060,13 +1098,14 @@
                 console.error('Screenshot failed:', error);
                 alert('Failed to take screenshot. Please try again.');
                 
-                // Restore original scale on error
+                // Restore original zoom on error
                 idCard.style.transform = `scale(${currentScale})`;
                 idCard.style.overflow = originalOverflow;
+                cardScale = currentScale;
                 currentlySelected.forEach(el => el.classList.add('selected'));
                 selectedElements = currentlySelected;
             });
-        }, 200); // Slightly longer timeout to ensure all styles are applied
+        }, 200);
     }
     
     async function saveProjectZip() {
