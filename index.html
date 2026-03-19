@@ -1118,35 +1118,52 @@
         }
     }
     
-    // FIXED FUNCTIONS - Now properly capture shadows, 3D effects, outlines, drop-shadows, etc.
+    // ਫਿਕਸਡ ਫੰਕਸ਼ਨ - ਹੁਣ PNG ਸਹੀ ਸੇਵ ਹੋਵੇਗਾ (Android WebView ਲਈ)
     async function captureHighQuality() {
-        // Temporarily remove selection outlines and scale
+        // ਅਸਥਾਈ ਤੌਰ 'ਤੇ ਸਿਲੈਕਸ਼ਨ ਹਟਾਓ
         const currentlySelected = [...selectedElements];
         currentlySelected.forEach(el => el.classList.remove('selected'));
         
+        // ਅਸਲੀ ਸਟਾਈਲ ਸਟੋਰ ਕਰੋ
         const originalTransform = idCard.style.transform;
+        const originalOverflow = idCard.style.overflow;
+        const originalWidth = idCard.style.width;
+        const originalHeight = idCard.style.height;
+        
+        // --- Android WebView ਲਈ ਫਿਕਸ ---
+        // ਕਾਰਡ ਨੂੰ ਇਸਦੇ ਅਸਲੀ ਸਾਈਜ਼ 'ਤੇ ਸੈੱਟ ਕਰੋ (ਬਿਨਾਂ ਸਕੇਲ ਦੇ)
         idCard.style.transform = 'scale(1)';
         
-        const originalOverflow = idCard.style.overflow || 'hidden';
-        idCard.style.overflow = 'visible';   // Critical: allow shadows to render outside the card bounds
+        // ਕਾਰਡ ਦੇ ਅਸਲੀ ਪਿਕਸਲ ਡਾਇਮੈਨਸ਼ਨ ਗਿਣੋ
+        let res = parseFloat(document.getElementById('cardRes').value) || 96;
+        let wInches = parseFloat(document.getElementById('cardWidth').value) || 2.7;
+        let hInches = parseFloat(document.getElementById('cardHeight').value) || 4.7;
+        let pixelWidth = Math.round(wInches * res);
+        let pixelHeight = Math.round(hInches * res);
         
-        // Force repaint so all CSS effects (drop-shadow, box-shadow, text-shadow, outline) are applied
+        idCard.style.width = pixelWidth + 'px';
+        idCard.style.height = pixelHeight + 'px';
+        idCard.style.overflow = 'visible'; // ਸ਼ੈਡੋ ਲਈ
+        
+        // ਫੋਰਸ ਰੀਫਲੋ
         idCard.offsetHeight;
         
         return new Promise((resolve) => {
             html2canvas(idCard, {
-                scale: 3,                    // High resolution
+                scale: 2, // ਮੋਬਾਈਲ ਲਈ ਸਕੇਲ 2 ਕਾਫੀ ਹੈ
                 useCORS: true,
                 allowTaint: true,
-                backgroundColor: null,       // Preserve transparency if needed
+                backgroundColor: null,
                 logging: false,
-                width: idCard.offsetWidth,
-                height: idCard.offsetHeight,
+                width: pixelWidth,
+                height: pixelHeight,
+                windowWidth: pixelWidth,
+                windowHeight: pixelHeight,
                 onclone: (clonedDoc) => {
                     const clonedCard = clonedDoc.getElementById('idCardContainer');
                     if (clonedCard) {
                         clonedCard.style.overflow = 'visible';
-                        // Ensure all filter & shadow effects are kept in clone
+                        // ਸਾਰੇ ਇਫੈਕਟਸ ਨੂੰ ਕਲੋਨ ਵਿੱਚ ਰੱਖੋ
                         clonedCard.querySelectorAll('.draggable').forEach(el => {
                             if (el.style.filter) el.style.filter = el.style.filter;
                             if (el.style.boxShadow) el.style.boxShadow = el.style.boxShadow;
@@ -1155,18 +1172,22 @@
                     }
                 }
             }).then(canvas => {
-                // Restore everything
+                // ਅਸਲੀ ਸਟਾਈਲ ਵਾਪਸ ਲਗਾਓ
                 idCard.style.transform = originalTransform;
                 idCard.style.overflow = originalOverflow;
+                idCard.style.width = originalWidth;
+                idCard.style.height = originalHeight;
                 currentlySelected.forEach(el => el.classList.add('selected'));
                 selectedElements = currentlySelected;
                 
                 resolve(canvas);
             }).catch(err => {
                 console.error("html2canvas error:", err);
-                // Restore on error
+                // ਗਲਤੀ ਹੋਣ 'ਤੇ ਵਾਪਸ ਲਗਾਓ
                 idCard.style.transform = originalTransform;
                 idCard.style.overflow = originalOverflow;
+                idCard.style.width = originalWidth;
+                idCard.style.height = originalHeight;
                 currentlySelected.forEach(el => el.classList.add('selected'));
                 selectedElements = currentlySelected;
                 resolve(null);
@@ -1309,8 +1330,19 @@
         let wInches = parseFloat(document.getElementById('cardWidth').value) || 2.7;
         let hInches = parseFloat(document.getElementById('cardHeight').value) || 4.7;
         let res = parseFloat(document.getElementById('cardRes').value) || 96;
-        idCard.style.width = (wInches * res) + 'px'; 
-        idCard.style.height = (hInches * res) + 'px'; 
+        
+        // ਪਿਕਸਲ ਵਿੱਚ ਸਹੀ ਸਾਈਜ਼ ਗਿਣੋ
+        let pixelWidth = Math.round(wInches * res);
+        let pixelHeight = Math.round(hInches * res);
+        
+        // ਫਿਕਸਡ ਪਿਕਸਲ ਡਾਇਮੈਨਸ਼ਨ ਲਗਾਓ
+        idCard.style.width = pixelWidth + 'px'; 
+        idCard.style.height = pixelHeight + 'px'; 
+        
+        // ਇਹਨਾਂ ਵੈਲਯੂਜ਼ ਨੂੰ ਡੇਟਾ ਐਟਰੀਬਿਊਟ ਵਿੱਚ ਸਟੋਰ ਕਰੋ
+        idCard.dataset.naturalWidth = pixelWidth;
+        idCard.dataset.naturalHeight = pixelHeight;
+        
         recordAction(); 
     }
 </script>
